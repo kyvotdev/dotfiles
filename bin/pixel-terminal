@@ -1,0 +1,11 @@
+#!/bin/sh
+if command -v kitty >/dev/null 2>&1; then
+    exec kitty "$@"
+fi
+if [ "$#" -gt 0 ]; then
+    exec alacritty "$@"
+fi
+if command -v fish >/dev/null 2>&1; then
+    exec alacritty -e fish
+fi
+exec alacritty

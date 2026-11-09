@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Select the niri renderer. Does not disable the Intel display controller."""
+import sys, subprocess, os, tempfile, json
+from pathlib import Path
+PCI='0000:03:00.0'
+DEVICE=Path('/sys/bus/pci/devices')/PCI
+CONF=Path.home()/'.config/niri/active-gpu.kdl'
+def driver():
+    link=DEVICE/'driver'
+    return link.resolve().name if link.exists() else 'none'
+def main():
+    action=sys.argv[1] if len(sys.argv)>1 else 'status'
+    if action=='status':
+        print('NVIDIA T550 driver:',driver())
+        print('Configured renderer:',CONF.read_text().strip() if CONF.exists() else 'automatic')
+        print('Renderer selection takes effect after restarting the niri session.')
+        return
+    if action not in ('discrete','auto'):raise ValueError('Use: pixel-gpu status | discrete | auto')
+    if action=='discrete':
+        if driver()!='nvidia':raise ValueError('Install the NVIDIA driver and reboot first; current driver: '+driver())
+        subprocess.run(['nvidia-smi','-L'],check=True)
+        modeset=Path('/sys/module/nvidia_drm/parameters/modeset')
+        if not modeset.exists() or modeset.read_text().strip().lower() not in ('y','1'):raise ValueError('NVIDIA DRM modesetting is not enabled. Reboot after driver installation.')
+        render=Path('/dev/dri/by-path')/('pci-'+PCI+'-render')
+        if not render.exists():
+            nodes=sorted((DEVICE/'drm').glob('renderD*'))
+            if not nodes:raise ValueError('NVIDIA render node is unavailable')
+            render=Path('/dev/dri')/nodes[0].name
+        if not render.exists():raise ValueError('Render device is not accessible: '+str(render))
+        text='// NVIDIA T550 renderer; Intel remains available for the built-in display.\ndebug { render-drm-device '+json.dumps(str(render))+'; }\n'
+    else:text='// Automatic GPU selection.\n'
+    CONF.parent.mkdir(parents=True,exist_ok=True)
+    target=CONF.resolve();old=target.read_text() if target.exists() else ''
+    fd,tmp=tempfile.mkstemp(dir=target.parent,prefix='.gpu-')
+    with os.fdopen(fd,'w') as f:f.write(text)
+    os.replace(tmp,target)
+    result=subprocess.run(['niri','validate'])
+    if result.returncode:
+        target.write_text(old);raise ValueError('niri rejected the GPU configuration; previous settings restored')
+    print('Configured '+action+' renderer. Log out of niri and log in again.')
+    print('Rollback from a TTY: ~/.local/bin/pixel-gpu auto')
+if __name__=='__main__':
+    try:main()
+    except (OSError,ValueError,subprocess.SubprocessError) as e:print(str(e),file=sys.stderr);sys.exit(1)

@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+backups/
+config/niri/active-gpu.kdl
+config/niri/monitors.kdl
+assets/fonts/*
+assets/cursors/*
+*.log
+config/fish/fish_variables

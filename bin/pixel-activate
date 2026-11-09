@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+export PATH="$HOME/.local/bin:$PATH"
+# Native Pixel Shell menus replace the legacy tray applet.
+pkill -u "$(id -u)" -x nm-applet 2>/dev/null || true
+pixel-doctor
+systemctl --user daemon-reload
+systemctl --user import-environment WAYLAND_DISPLAY DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP
+systemctl --user restart pixel-bluetooth.service pixel-idle.service pixel-sleep-lock.service pixel-display-watch.service
+pixel-theme --restore
+if pgrep -u "$(id -u)" -x waybar >/dev/null; then
+    pkill -USR2 -u "$(id -u)" -x waybar
+else
+    waybar > "$HOME/.local/state/pixel-shell/waybar.log" 2>&1 &
+fi
+if pgrep -u "$(id -u)" -x mako >/dev/null; then
+    makoctl reload
+else
+    mako > "$HOME/.local/state/pixel-shell/mako.log" 2>&1 &
+fi
+printf '%s\n' 'Pixel Shell activated. Log out and back in to apply Qt and cursor environment variables.'

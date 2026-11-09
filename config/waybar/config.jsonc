@@ -1,0 +1,119 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 24,
+  "spacing": 0,
+  "reload_style_on_change": true,
+  "modules-left": [
+    "custom/control",
+    "niri/workspaces",
+    "niri/window"
+  ],
+  "modules-center": [
+    "clock"
+  ],
+  "modules-right": [
+    "custom/notifications",
+    "niri/language",
+    "custom/caffeine",
+    "network",
+    "bluetooth",
+    "pulseaudio",
+    "backlight",
+    "battery",
+    "tray",
+    "custom/power"
+  ],
+  "custom/control": {
+    "format": "󰒓",
+    "tooltip-format": "Control center",
+    "on-click": "/home/didi/.local/bin/pixel-control menu"
+  },
+  "niri/workspaces": {
+    "format": "{index}",
+    "all-outputs": false
+  },
+  "niri/window": {
+    "format": "{title}",
+    "max-length": 24,
+    "tooltip": false
+  },
+  "clock": {
+    "format": "{:%a  %d %b  %H:%M}",
+    "tooltip-format": "{:%A, %d %B %Y}\n\n{calendar}",
+    "locale": "C",
+    "on-click": "/home/didi/.local/bin/pixel-extras calendar",
+    "on-click-right": "/home/didi/.local/bin/pixel-extras notes"
+  },
+  "niri/language": {
+    "format": "󰌌 {shortDescription}",
+    "format-en": "󰌌 US",
+    "format-ru": "󰌌 RU",
+    "tooltip-format": "{long} · click to switch",
+    "on-click": "niri msg action switch-layout next"
+  },
+  "network": {
+    "format-wifi": "󰖩 {signalStrength}%",
+    "format-ethernet": "󰈀 LAN",
+    "format-disconnected": "󰖪 OFF",
+    "tooltip-format": "{ifname} · {ipaddr}\n{essid}",
+    "on-click": "/home/didi/.local/bin/pixel-control wifi",
+    "on-click-right": "/home/didi/.local/bin/pixel-control hotspot"
+  },
+  "bluetooth": {
+    "format": "󰂯",
+    "format-disabled": "󰂲",
+    "format-connected": "󰂱 {num_connections}",
+    "tooltip-format": "Bluetooth: {status}",
+    "on-click": "/home/didi/.local/bin/pixel-bluetooth"
+  },
+  "pulseaudio": {
+    "format": "󰕾 {volume}%",
+    "format-muted": "󰖁 MUTE",
+    "scroll-step": 3,
+    "max-volume": 100,
+    "on-click": "/home/didi/.local/bin/pixel-control audio",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+  },
+  "backlight": {
+    "format": "󰃠 {percent}%",
+    "on-scroll-up": "brightnessctl -c backlight set +5%",
+    "on-scroll-down": "brightnessctl -c backlight set 5%- -n 1"
+  },
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-icons": [
+      "󰁺",
+      "󰁽",
+      "󰂀",
+      "󰁹"
+    ],
+    "states": {
+      "warning": 25,
+      "critical": 10
+    },
+    "tooltip-format": "{timeTo} · {power} W"
+  },
+  "tray": {
+    "icon-size": 14,
+    "spacing": 8
+  },
+  "custom/power": {
+    "format": "󰐥",
+    "tooltip-format": "Session / power",
+    "on-click": "/home/didi/.local/bin/pixel-control power"
+  },
+  "custom/notifications": {
+    "format": "󰂚",
+    "tooltip-format": "Notifications · right click: do not disturb",
+    "on-click": "/home/didi/.local/bin/pixel-extras notifications",
+    "on-click-right": "makoctl mode -t do-not-disturb"
+  },
+  "custom/caffeine": {
+    "exec": "/home/didi/.local/bin/pixel-caffeine",
+    "return-type": "json",
+    "interval": 3,
+    "on-click": "/home/didi/.local/bin/pixel-caffeine toggle"
+  }
+}

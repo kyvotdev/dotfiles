@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+import importlib.util,shutil,subprocess
+from pathlib import Path
+required=['niri','waybar','fuzzel','alacritty','fish','starship','kitty','nmcli','bluetoothctl','wpctl','pw-dump','brightnessctl','swaybg','swaylock','swayidle','notify-send','mako','playerctl','dnsmasq']
+failed=False
+for cmd in required:
+    good=bool(shutil.which(cmd));failed |= not good
+    print(('OK      ' if good else 'MISSING ')+cmd)
+for module in ('PIL','dbus','gi'):
+    good=bool(importlib.util.find_spec(module));failed |= not good
+    print(('OK      ' if good else 'MISSING ')+'Python '+module)
+for family in ('Terminess Nerd Font Mono','Symbols Nerd Font Mono','JetBrainsMono Nerd Font Mono'):
+    result=subprocess.run(['fc-match','-f','%{family}',family],text=True,capture_output=True).stdout
+    good=family.lower() in result.lower(); failed |= not good
+    print(('OK      ' if good else 'MISSING ')+family+' -> '+result)
+for name in ('adw-gtk3-dark','Papirus-Dark','Vanilla-DMZ'):
+    roots=[Path.home()/'.local/share/themes',Path.home()/'.local/share/icons',Path('/usr/share/themes'),Path('/usr/share/icons')]
+    good=any((root/name).exists() for root in roots); failed |= not good
+    print(('OK      ' if good else 'MISSING ')+name)
+for command in (['niri','validate'],['fuzzel','--check-config']):
+    if subprocess.run(command).returncode: failed=True
+for service in ('NetworkManager','bluetooth'):
+    result=subprocess.run(['systemctl','is-active',service])
+    failed |= result.returncode != 0
+print('Install missing components before activation.' if failed else 'Dependencies and configuration checks passed.')
+raise SystemExit(1 if failed else 0)

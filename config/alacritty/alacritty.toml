@@ -1,0 +1,18 @@
+[general]
+import = ["~/.config/alacritty/colors.toml"]
+live_config_reload = true
+[window]
+padding = { x = 14, y = 12 }
+dynamic_padding = true
+decorations = "None"
+opacity = 0.88
+[font]
+normal = { family = "JetBrainsMono Nerd Font Mono", style = "SemiBold" }
+bold = { family = "JetBrainsMono Nerd Font Mono", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font Mono", style = "SemiBold Italic" }
+size = 12.0
+[cursor]
+style = { shape = "Block", blinking = "On" }
+blink_interval = 650
+[scrolling]
+history = 20000

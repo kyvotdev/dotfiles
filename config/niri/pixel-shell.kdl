@@ -1,0 +1,61 @@
+// Pixel Shell: generated palette overrides only visual colors.
+include "colors.kdl"
+spawn-at-startup "/home/didi/.local/bin/pixel-session"
+cursor {
+    xcursor-theme "Vanilla-DMZ"
+    xcursor-size 24
+}
+environment {
+    QT_QPA_PLATFORMTHEME "qt5ct:qt6ct"
+    XCURSOR_THEME "Vanilla-DMZ"
+    XCURSOR_SIZE "24"
+}
+animations {
+    workspace-switch { duration-ms 260; curve "ease-out-cubic"; }
+    horizontal-view-movement { duration-ms 240; curve "ease-out-cubic"; }
+    window-open { duration-ms 220; curve "ease-out-expo"; }
+    window-close { duration-ms 180; curve "ease-out-quad"; }
+    window-movement { duration-ms 220; curve "ease-out-cubic"; }
+    overview-open-close { spring damping-ratio=1.0 stiffness=650 epsilon=0.0001; }
+    screenshot-ui-open { duration-ms 180; curve "ease-out-quad"; }
+    config-notification-open-close { spring damping-ratio=1.0 stiffness=700 epsilon=0.001; }
+    exit-confirmation-open-close { spring damping-ratio=1.0 stiffness=650 epsilon=0.001; }
+    recent-windows-close { spring damping-ratio=1.0 stiffness=750 epsilon=0.001; }
+    window-resize { spring damping-ratio=1.0 stiffness=750 epsilon=0.0001; }
+}
+binds {
+    Mod+P hotkey-overlay-title="Displays / HDMI" { spawn "/home/didi/.local/bin/pixel-displays"; }
+    Mod+Ctrl+P hotkey-overlay-title="Restore displays" { spawn "/home/didi/.local/bin/pixel-displays" "rescue"; }
+    Mod+Alt+C hotkey-overlay-title="Caffeine" { spawn "/home/didi/.local/bin/pixel-caffeine" "toggle"; }
+    Mod+N { spawn "/home/didi/.local/bin/pixel-extras" "notifications"; }
+    Mod+Shift+N { spawn "makoctl" "restore"; }
+    Mod+Shift+C { spawn "/home/didi/.local/bin/pixel-extras" "calendar"; }
+    Mod+Alt+T { spawn "/home/didi/.local/bin/pixel-extras" "timer"; }
+    Mod+B hotkey-overlay-title="Zen Browser" { spawn "zen-browser"; }
+    Mod+T hotkey-overlay-title="Terminal" { spawn "/home/didi/.local/bin/pixel-terminal"; }
+    Mod+G hotkey-overlay-title="Telegram" { spawn "telegram-desktop"; }
+    Mod+X hotkey-overlay-title="Control center" { spawn "/home/didi/.local/bin/pixel-control" "menu"; }
+    Mod+Shift+W hotkey-overlay-title="Wi-Fi" { spawn "/home/didi/.local/bin/pixel-control" "wifi"; }
+    Mod+Shift+B hotkey-overlay-title="Bluetooth" { spawn "/home/didi/.local/bin/pixel-bluetooth"; }
+    Mod+Shift+H hotkey-overlay-title="Hotspot" { spawn "/home/didi/.local/bin/pixel-control" "hotspot"; }
+    Mod+Shift+A hotkey-overlay-title="Audio devices" { spawn "/home/didi/.local/bin/pixel-control" "audio"; }
+    Mod+Shift+Escape hotkey-overlay-title="Power menu" { spawn "/home/didi/.local/bin/pixel-control" "power"; }
+    Mod+Shift+D hotkey-overlay-title="Choose wallpaper" { spawn "/home/didi/.local/bin/pixel-wallpaper"; }
+}
+
+// Keep the focus highlight outside transparent terminals.
+window-rule {
+    match app-id=r#"(?i)^(kitty|Alacritty|org\.alacritty\.Alacritty)$"#
+    draw-border-with-background false
+}
+
+include optional=true "active-gpu.kdl"
+
+include optional=true "monitors.kdl"
+window-rule {
+    match title="^Calendar · Pixel Shell$"
+    open-floating true
+    default-column-width { fixed 780; }
+    default-window-height { fixed 540; }
+    draw-border-with-background false
+}

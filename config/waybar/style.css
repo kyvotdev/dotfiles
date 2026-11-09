@@ -1,0 +1,50 @@
+@import "colors.css";
+* {
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    font-family: "Terminess Nerd Font Mono", "Symbols Nerd Font Mono";
+    font-size: 14px;
+    font-weight: 700;
+}
+window#waybar { background: @bg; color: @fg; border-bottom: 1px solid @edge; }
+#workspaces { margin: 0 6px; }
+#workspaces button {
+    min-width: 24px;
+    padding: 0 3px;
+    margin: 0 2px;
+    color: @muted;
+    background: transparent;
+    border-bottom: 2px solid transparent;
+}
+#workspaces button label {
+    min-width: 24px;
+    padding: 0;
+    margin: 0;
+}
+#workspaces button.active { color: @accent; border-bottom-color: @accent; background: @surface; }
+#workspaces button.urgent { color: @warn; border-bottom-color: @warn; }
+#workspaces button:hover { background: @edge; box-shadow: none; }
+#window { padding: 0 10px; color: @muted; font-size: 14px; }
+#clock { color: @accent; background: @surface; border-bottom: 1px solid @accent; padding: 0 12px; }
+#custom-control, #custom-power { color: @accent; background: @surface; padding: 0 11px; }
+#custom-control { border-right: 2px solid @accent; }
+#custom-power { border-left: 1px solid @edge; margin-left: 5px; }
+#network, #bluetooth, #pulseaudio, #backlight, #battery, #language, #tray { padding: 0 7px; }
+#language { color: @accent2; font-size: 14px; }
+#network, #pulseaudio, #battery { background: @surface; margin: 1px 2px; padding: 0 7px; }
+#network.disconnected, #bluetooth.disabled, #pulseaudio.muted { color: @muted; }
+#battery.warning, #battery.critical { color: @warn; }
+#bluetooth.connected { color: @accent; }
+tooltip { background: @surface; border: 2px solid @accent; }
+tooltip label { color: @fg; padding: 8px; font-size: 16px; }
+
+#custom-notifications { color: @accent2; padding: 0 8px; }
+#workspaces button, #custom-control, #custom-power, #custom-notifications, #clock {
+    transition: background-color 160ms ease-out, color 160ms ease-out;
+}
+#custom-control:hover, #custom-power:hover, #custom-notifications:hover, #clock:hover { background: @edge; }
+
+#language { min-width: 44px; color: @accent; background: @surface; border-bottom: 1px solid @accent2; margin: 1px 4px; padding: 0 8px; }
+#custom-caffeine { padding: 0 8px; color: @muted; }
+#custom-caffeine.on { color: @accent; background: @surface; }

@@ -1,0 +1,16 @@
+color=0c0e0e
+font=Terminess Nerd Font Mono
+font-size=20
+indicator-radius=65
+indicator-thickness=3
+inside-color=151718
+ring-color=363d40
+key-hl-color=7fc0db
+bs-hl-color=83a5cc
+text-color=cedbe0
+ring-ver-color=7fc0db
+ring-wrong-color=d4bc73
+text-wrong-color=d4bc73
+inside-wrong-color=151718
+line-uses-inside
+show-failed-attempts
