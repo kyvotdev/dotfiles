@@ -49,3 +49,12 @@ term.toggle()
 require('pixel.debug').panel()
 require('pixel.debug').panel()
 print('Terminal persistence and debugger panels passed')
+
+MiniStarter.open()
+local dashboard=table.concat(vim.api.nvim_buf_get_lines(0,0,-1,false),'\n')
+for _,key in ipairs({'Space ff','Space fp','Space fr','Space cl','Space pi','Space t','F5','Space rt','Space Q'}) do
+  assert(dashboard:find('['..key..']',1,true),'Missing dashboard shortcut: '..key)
+end
+assert(vim.fn.maparg('<Space>pi','n')~='','Install shortcut missing')
+assert(vim.fn.maparg('<Space>Q','n')~='','Quit shortcut missing')
+print('Dashboard shortcut labels and mappings passed')
