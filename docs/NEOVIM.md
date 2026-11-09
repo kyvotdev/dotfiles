@@ -153,3 +153,19 @@ python3 ~/dotfiles/tests/run_nvim.py
 | q / ? | Закрыть дерево / подсказка клавиш |
 
 `Space+e` работает и со стартового экрана, `Space+E` показывает текущий файл. Font mapping терминала остаётся Symbols Nerd Font Mono для всех Nerd Font диапазонов. Проверка символов — `:PixelIcons`. Само окно nvim-tree требует проверки после фактического скачивания плагина; локальные тесты проверяют его адаптер и настройки значков, не подменяя этим проверку upstream UI.
+
+### Integrated terminal and debugging workspace
+
+- `Space t` or `Ctrl+\`: toggle a persistent fish terminal for the current project.
+- `:PixelTerminal!`: open the terminal vertically. Hiding preserves the shell.
+- Terminal `Esc Esc`: normal mode; `Ctrl+h/j/k/l`: navigate splits.
+- `F5`: start/continue; `F10`: step over; `F11`: step into; `Shift+F11`: step out.
+- `Space db`: breakpoint; `Space dB`: conditional breakpoint.
+- `Space du`: variables and call stack panels; `Space de`: inspect value.
+- `Space dr`: debug console; `Space dc`: run to cursor; `Space dq`: stop.
+- `Space dx`: clear breakpoints; `Space dl`: load project `.vscode/launch.json`.
+- `Space rt`: project tasks; `Space rr`: run file; `Space xx`: diagnostics.
+
+Python debugpy is discovered in project `.venv` / `venv` and system Python.
+Debugger configurations and project tasks execute code; use trusted projects.
+Missing language runtimes and adapters: `bash ~/dotfiles/tools/install-dev-tools.sh all`.

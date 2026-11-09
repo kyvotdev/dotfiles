@@ -58,6 +58,9 @@ function M.setup()
       { name = '  Recent files', action = function() require('mini.extra').pickers.oldfiles() end, section = 'Project' },
       { name = '  Language tools and health', action = function() require('pixel.tools').health() end, section = 'Setup' },
       { name = '  Install missing plugins', action = 'PixelInstall', section = 'Setup' },
+      { name = '  Project terminal', action = 'PixelTerminal', section = 'Develop' },
+      { name = '  Debug current file', action = function() require('dap').continue() end, section = 'Develop' },
+      { name = '  Project tasks', action = 'PixelTasks', section = 'Develop' },
       { name = '  Quit', action = 'qa', section = 'Editor' },
     } })
     setup('sessions', { directory = vim.fn.stdpath('state') .. '/sessions', file = '', autoread = false, autowrite = false })

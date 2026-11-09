@@ -1,4 +1,20 @@
-local M = {}
+local M = { panels = {} }
+function M.panel()
+  local widgets = require('dap.ui.widgets')
+  if not M.panels.scopes then
+    M.panels.scopes = widgets.sidebar(widgets.scopes, {width=40}, 'botright vsplit')
+    M.panels.frames = widgets.sidebar(widgets.frames, {height=9}, 'botright split')
+  end
+  M.panels.scopes.toggle()
+  M.panels.frames.toggle()
+end
+function M.load_launch()
+  local path = require('pixel.tools').root() .. '/.vscode/launch.json'
+  if vim.fn.filereadable(path) == 1 then
+    require('dap.ext.vscode').load_launchjs(path, {gdb={'c','cpp','rust'}, python={'python'}, delve={'go'}})
+    vim.notify('Loaded project debug configurations')
+  else vim.notify('No .vscode/launch.json in this project', vim.log.levels.INFO) end
+end
 local function dap_module()
   local ok, dap = pcall(require, 'dap')
   if not ok then vim.notify('Debugger plugin is missing. Run :PixelInstall and restart Neovim.', vim.log.levels.WARN); return end
@@ -14,7 +30,21 @@ end
 function M.setup()
   local ok, dap = pcall(require, 'dap')
   if ok then
-    dap.adapters.python = { type = 'executable', command = vim.fn.exepath('python3'), args = { '-m', 'debugpy.adapter' } }
+    dap.adapters.python = function(callback)
+      local root = require('pixel.tools').root()
+      local candidates = { root .. '/.venv/bin/python', root .. '/venv/bin/python', vim.fn.exepath('python3') }
+      for _, python in ipairs(candidates) do
+        if vim.fn.executable(python) == 1 then
+          local result = vim.system({python, '-c', 'import debugpy'}, {text=true}):wait(3000)
+          if result.code == 0 then
+            callback({type='executable',command=python,args={'-m','debugpy.adapter'}})
+            return
+          end
+        end
+      end
+      vim.notify('Python debugger missing: install python-debugpy or debugpy in the project virtualenv.', vim.log.levels.ERROR)
+      return
+    end
     dap.configurations.python = { { name = 'Debug current Python file', type = 'python', request = 'launch', program = '${file}', cwd = '${workspaceFolder}', console = 'integratedTerminal', justMyCode = false, pythonPath = function()
       local localpython = require('pixel.tools').root() .. '/.venv/bin/python'
       return vim.fn.executable(localpython) == 1 and localpython or vim.fn.exepath('python3')
@@ -41,6 +71,10 @@ function M.setup()
   map('<F10>', function(d) d.step_over() end, 'Debug: step over')
   map('<F11>', function(d) d.step_into() end, 'Debug: step into')
   map('<S-F11>', function(d) d.step_out() end, 'Debug: step out')
+  map('<leader>du', function() M.panel() end, 'Debug: variables and stack panel')
+  map('<leader>dl', function() M.load_launch() end, 'Debug: load project launch.json')
+  map('<leader>dc', function(d) d.run_to_cursor() end, 'Debug: run to cursor')
+  map('<leader>dx', function(d) d.clear_breakpoints() end, 'Debug: clear breakpoints')
   map('<leader>db', function(d) d.toggle_breakpoint() end, 'Debug: breakpoint')
   map('<leader>dB', function(d) vim.ui.input({ prompt = 'Breakpoint condition: ' }, function(value) if value then d.set_breakpoint(value) end end) end, 'Debug: conditional breakpoint')
   map('<leader>dq', function(d) d.terminate() end, 'Debug: stop')
