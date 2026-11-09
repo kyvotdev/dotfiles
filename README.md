@@ -282,7 +282,7 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 | `Win+Equal` | Ширина колонки +10% |
 | `Win+Shift+Minus` | Высота окна -10% |
 | `Win+Shift+Equal` | Высота окна +10% |
-| `Win+V` | Плавающий / плиточный режим |
+| `Win+Ctrl+V` | Плавающий / плиточный режим |
 | `Win+Shift+V` | Переключить фокус между плавающими и плиточными окнами |
 | `Win+W` | Вкладки / стопка в колонке |
 | `Print` | Снимок выбранной области |
@@ -291,6 +291,8 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 | `Win+Escape` | Разрешить / запретить перехват горячих клавиш приложением |
 | `Win+Shift+E`, `Ctrl+Alt+Delete` | Выйти из niri с подтверждением |
 | `Win+Shift+P` | Погасить мониторы; любой ввод включает их снова |
+| `Win+V` | История буфера обмена |
+| `Win+Alt+V` | Действия с буфером обмена |
 | `Alt+Tab`, `Win+Tab` | focus-window-previous |
 | `Win+P` | Мониторы / HDMI / дублирование |
 | `Win+Ctrl+P` | Включить экраны и восстановить автоматическое расположение |
@@ -345,3 +347,12 @@ Selection is manual and does not change the graphics renderer.
 
 Waybar shows the power profile next to the battery: `ECO`, `BAL`, or `PERF`.
 Click it to select a mode; the indicator refreshes every five seconds.
+
+### Clipboard history
+
+`Win+V`: searchable text/image history; select an entry, then paste with Ctrl+V.
+`Win+Alt+V`: clipboard actions, delete an entry or clear history.
+`Win+Ctrl+V`: toggle floating windows (moved from Win+V).
+Also available under Control center → Clipboard.
+History is stored locally by cliphist in `~/.cache/cliphist`; clearing also clears
+the current clipboard. Watchers run as user services in the graphical session.

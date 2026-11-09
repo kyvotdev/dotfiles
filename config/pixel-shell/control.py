@@ -115,9 +115,10 @@ def audio():
     if target: run('wpctl','set-default',target)
 
 def tools_menu():
-    choice=choose('Control center',[('Power mode','power-mode'),('Displays','displays'),('Calendar','calendar'),('Notifications','notifications'),('Notes','notes'),('Focus timer','timer'),(IC['wifi']+'  Network','wifi'),(IC['bt']+'  Bluetooth','bluetooth'),(IC['wifi']+'  Hotspot','hotspot'),(IC['sound']+'  Audio devices','audio'),(IC['image']+'  Wallpaper','wallpaper'),(IC['moon']+'  Caffeine','idle'),(IC['power']+'  Session','power')])
+    choice=choose('Control center',[(IC['copy']+'  Clipboard','clipboard'),('Power mode','power-mode'),('Displays','displays'),('Calendar','calendar'),('Notifications','notifications'),('Notes','notes'),('Focus timer','timer'),(IC['wifi']+'  Network','wifi'),(IC['bt']+'  Bluetooth','bluetooth'),(IC['wifi']+'  Hotspot','hotspot'),(IC['sound']+'  Audio devices','audio'),(IC['image']+'  Wallpaper','wallpaper'),(IC['moon']+'  Caffeine','idle'),(IC['power']+'  Session','power')])
     if choice in ('calendar','notifications','notes','timer'):
         subprocess.Popen([str(Path.home()/'.local/bin/pixel-extras'),choice])
+    elif choice=='clipboard': subprocess.Popen([str(Path.home()/'.local/bin/pixel-clipboard'),'menu'])
     elif choice=='power-mode': subprocess.Popen([str(Path.home()/'.local/bin/pixel-power-mode')])
     elif choice=='bluetooth': subprocess.Popen([str(Path.home()/'.local/bin/pixel-bluetooth')])
     elif choice=='wallpaper': subprocess.Popen([str(Path.home()/'.local/bin/pixel-wallpaper')])

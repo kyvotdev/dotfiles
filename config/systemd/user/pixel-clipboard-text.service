@@ -1,0 +1,10 @@
+[Unit]
+Description=Pixel Shell clipboard history (text)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/wl-paste --type text --watch /usr/bin/cliphist store
+Restart=on-failure
+RestartSec=3
+UMask=0077

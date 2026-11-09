@@ -9,5 +9,5 @@ pixel-theme --restore
 if command -v mako >/dev/null 2>&1; then
     pgrep -u "$(id -u)" -x mako >/dev/null || mako &
 fi
-systemctl --user start pixel-idle.service pixel-sleep-lock.service pixel-display-watch.service
+systemctl --user start pixel-idle.service pixel-sleep-lock.service pixel-display-watch.service pixel-clipboard-text.service pixel-clipboard-image.service
 wait

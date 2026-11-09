@@ -24,6 +24,8 @@ animations {
     window-resize { duration-ms 200; curve "ease-out-cubic"; }
 }
 binds {
+    Mod+V hotkey-overlay-title="Clipboard history" { spawn "/home/didi/.local/bin/pixel-clipboard"; }
+    Mod+Alt+V hotkey-overlay-title="Clipboard actions" { spawn "/home/didi/.local/bin/pixel-clipboard" "menu"; }
     Alt+Tab repeat=false { focus-window-previous; }
     Mod+Tab repeat=false { focus-window-previous; }
     Mod+P hotkey-overlay-title="Displays / HDMI" { spawn "/home/didi/.local/bin/pixel-displays"; }

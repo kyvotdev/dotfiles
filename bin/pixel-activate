@@ -7,7 +7,7 @@ pkill -u "$(id -u)" -x nm-applet 2>/dev/null || true
 pixel-doctor
 systemctl --user daemon-reload
 systemctl --user import-environment WAYLAND_DISPLAY DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME
-systemctl --user restart pixel-bluetooth.service pixel-idle.service pixel-sleep-lock.service pixel-display-watch.service
+systemctl --user restart pixel-bluetooth.service pixel-idle.service pixel-sleep-lock.service pixel-display-watch.service pixel-clipboard-text.service pixel-clipboard-image.service
 pixel-theme --restore
 if pgrep -u "$(id -u)" -x waybar >/dev/null; then
     pkill -USR2 -u "$(id -u)" -x waybar
