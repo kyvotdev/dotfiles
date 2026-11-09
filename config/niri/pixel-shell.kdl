@@ -11,17 +11,17 @@ environment {
     XCURSOR_SIZE "24"
 }
 animations {
-    workspace-switch { duration-ms 260; curve "ease-out-cubic"; }
-    horizontal-view-movement { spring damping-ratio=1.0 stiffness=800 epsilon=0.0001; }
+    workspace-switch { off; }
+    horizontal-view-movement { duration-ms 200; curve "ease-out-cubic"; }
     window-open { duration-ms 220; curve "ease-out-expo"; }
     window-close { duration-ms 180; curve "ease-out-quad"; }
-    window-movement { spring damping-ratio=1.0 stiffness=800 epsilon=0.0001; }
+    window-movement { duration-ms 220; curve "ease-out-cubic"; }
     overview-open-close { spring damping-ratio=1.0 stiffness=650 epsilon=0.0001; }
     screenshot-ui-open { duration-ms 180; curve "ease-out-quad"; }
     config-notification-open-close { spring damping-ratio=1.0 stiffness=700 epsilon=0.001; }
     exit-confirmation-open-close { spring damping-ratio=1.0 stiffness=650 epsilon=0.001; }
     recent-windows-close { spring damping-ratio=1.0 stiffness=750 epsilon=0.001; }
-    window-resize { spring damping-ratio=1.0 stiffness=750 epsilon=0.0001; }
+    window-resize { duration-ms 200; curve "ease-out-cubic"; }
 }
 binds {
     Alt+Tab repeat=false { focus-window-previous; }

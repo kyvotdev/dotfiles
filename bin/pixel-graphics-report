@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+"""Read-only diagnostics; run from the real niri session for full GPU access."""
+import os,re,subprocess,tempfile
+from pathlib import Path
+lines=[]
+def capture(title,command,pattern=None):
+    lines.extend(['',title,'='*len(title)])
+    try:
+        p=subprocess.run(command,text=True,capture_output=True,timeout=12)
+        output=p.stdout+p.stderr
+        if pattern:output='\n'.join(x for x in output.splitlines() if re.search(pattern,x,re.I))
+        lines.append(output.strip() or '(no matching entries)')
+        if p.returncode:lines.append('Command exit status: '+str(p.returncode))
+    except (OSError,subprocess.TimeoutExpired) as exc:lines.append(str(exc))
+capture('Graphics devices',['lspci','-nnk','-d','::03xx'])
+capture('Running niri version',['niri','msg','version'])
+capture('Current outputs / modes / scales',['niri','msg','-j','outputs'])
+capture('NVIDIA status',['nvidia-smi','--query-gpu=name,driver_version,pstate,utilization.gpu,memory.used','--format=csv'])
+capture('Installed driver versions',['pacman','-Q','nvidia-utils','nvidia-open-dkms','linux-zen','linux-zen-headers'])
+path=Path.home()/'.config/niri/active-gpu.kdl'
+lines.extend(['','Configured renderer (requires session restart to apply)',path.read_text() if path.exists() else 'automatic'])
+capture('Renderer and input warnings in current session',['journalctl','--user','-b','_COMM=niri','-n','1500','--no-pager'],r'render node|primary renderer|lagging|frame.*(late|miss|fail)|vblank|pageflip.*fail|error')
+capture('GPU kernel errors',['journalctl','-k','-b','--no-pager'],r'NVRM.*Xid|GPU has fallen|i915.*(hang|reset|error)|nvidia.*(error|failed)')
+for edid in Path('/sys/class/drm').glob('card*-eDP-*/edid'):capture('Built-in display advertised timings',['edid-decode',str(edid)],r'DTD|Hz|Monitor ranges')
+state=Path.home()/'.local/state/pixel-shell';state.mkdir(parents=True,exist_ok=True)
+fd,tmp=tempfile.mkstemp(dir=state,prefix='.graphics-')
+with os.fdopen(fd,'w') as f:f.write('\n'.join(lines)+'\n')
+dest=state/'graphics-report.txt';os.replace(tmp,dest)
+print(dest)

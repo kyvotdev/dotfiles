@@ -4,7 +4,11 @@ assert(_G.MiniCompletion,'Automatic completion module is not loaded')
 assert(_G.MiniFiles and _G.MiniPick and _G.MiniStarter,'Editor UI is not loaded')
 local root=assert(vim.env.PIXEL_IDE_TEST_ROOT)
 vim.cmd.cd(vim.fn.fnameescape(root))
-MiniFiles.open(root)
+vim.cmd.enew()
+vim.bo.buftype='nofile'
+vim.api.nvim_buf_set_name(0,'ministarter:/1/welcome')
+assert(require('pixel.tools').file_target()==root,'Virtual starter path was treated as a real file')
+require('pixel.tools').files()
 assert(MiniFiles.get_explorer_state(),'File explorer did not open')
 MiniFiles.close()
 local count=0

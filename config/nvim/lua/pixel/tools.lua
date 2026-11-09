@@ -1,5 +1,7 @@
 local M = {}
 function M.root()
+  local name = vim.api.nvim_buf_get_name(0)
+  if vim.bo.buftype ~= '' or name:match('^%a[%w+.-]*:') then return vim.uv.cwd() end
   return vim.fs.root(0, { '.git', 'Cargo.toml', 'go.mod', 'pyproject.toml', 'package.json', 'Makefile' }) or vim.uv.cwd()
 end
 function M.open_terminal(argv, cwd)
@@ -91,9 +93,21 @@ function M.buffers()
   local buffers = vim.tbl_filter(function(buf) return vim.bo[buf].buflisted end, vim.api.nvim_list_bufs())
   vim.ui.select(buffers, { prompt = 'Buffers', format_item = function(buf) return vim.api.nvim_buf_get_name(buf) end }, function(buf) if buf then vim.api.nvim_set_current_buf(buf) end end)
 end
+function M.file_target()
+  local name = vim.api.nvim_buf_get_name(0)
+  if vim.bo.buftype == '' and name ~= '' and not name:match('^%a[%w+.-]*:') then
+    local stat = vim.uv.fs_stat(name)
+    if stat and (stat.type == 'file' or stat.type == 'directory') then return name end
+    local parent = vim.fs.dirname(name)
+    if parent and vim.fn.isdirectory(parent) == 1 then return parent end
+  end
+  local root = M.root()
+  return vim.fn.isdirectory(root) == 1 and root or vim.uv.cwd()
+end
 function M.files()
   local ok, files = pcall(require, 'mini.files')
-  if ok then files.open(vim.api.nvim_buf_get_name(0) ~= '' and vim.api.nvim_buf_get_name(0) or M.root(), true) else vim.cmd.Explore() end
+  local target = M.file_target()
+  if ok then files.open(target, true) else vim.cmd('Explore ' .. vim.fn.fnameescape(target)) end
 end
 function M.run()
   if vim.bo.modified then vim.notify('Save the file before running it', vim.log.levels.WARN); return end
@@ -134,8 +148,19 @@ function M.health()
   vim.cmd('botright new'); vim.bo.buftype = 'nofile'; vim.bo.bufhidden = 'wipe'; vim.bo.swapfile = false
   vim.api.nvim_buf_set_lines(0, 0, -1, false, lines); vim.bo.modifiable = false
 end
+function M.icons()
+  local ok,icons=pcall(require,'mini.icons')
+  if not ok then vim.notify('Install mini.nvim first with :PixelInstall',vim.log.levels.WARN);return end
+  local lines={'NERD FONT / ICON CHECK','','The left column should contain symbols, not squares.','Terminal font: JetBrainsMono Nerd Font Mono + Symbols Nerd Font Mono.',''}
+  for _,name in ipairs({'main.py','app.ts','main.rs','main.go','init.lua','main.cpp','README.md','package.json'}) do
+    local glyph=icons.get('file',name);table.insert(lines,glyph..'  '..name)
+  end
+  vim.cmd('botright new');vim.bo.buftype='nofile';vim.bo.bufhidden='wipe';vim.bo.swapfile=false
+  vim.api.nvim_buf_set_lines(0,0,-1,false,lines);vim.bo.modifiable=false
+end
 function M.setup()
   vim.api.nvim_create_user_command('PixelTools', M.health, {})
+  vim.api.nvim_create_user_command('PixelIcons', M.icons, {})
   vim.api.nvim_create_user_command('PixelFormat', function() M.format(false) end, {})
   vim.api.nvim_create_user_command('PixelRun', M.run, {})
   vim.api.nvim_create_user_command('PixelTasks', M.tasks, {})

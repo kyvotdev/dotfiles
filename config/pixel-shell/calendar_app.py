@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import datetime as dt, json, sys
+import datetime as dt, json, sys, logging, subprocess, re, os, signal, time
 from pathlib import Path
 import gi
 gi.require_version('Gtk','3.0')
@@ -7,11 +7,11 @@ from gi.repository import Gtk, Gdk, GLib, Gio
 from agenda import Agenda
 
 class CalendarWindow(Gtk.ApplicationWindow):
-    def __init__(self,app):
+    def __init__(self,app,store=None):
         super().__init__(application=app,title='Calendar · Pixel Shell')
         self.set_wmclass('pixel-calendar','pixel-calendar')
         self.set_default_size(760,510);self.set_border_width(20)
-        self.store=Agenda();self.selected=dt.date.today();self.upcoming=False;self.editing=None;self.deleted=None
+        self.store=store or Agenda();self.selected=dt.date.today();self.upcoming=False;self.editing=None;self.deleted=None
         self.connect('key-press-event',self.key)
         outer=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=16);self.add(outer)
         head=Gtk.Box(spacing=8);outer.pack_start(head,False,False,0)
@@ -19,7 +19,7 @@ class CalendarWindow(Gtk.ApplicationWindow):
         self.button(head,'Today',self.today);self.button(head,'Upcoming',self.toggle_upcoming)
         columns=Gtk.Box(spacing=24);outer.pack_start(columns,True,True,0)
         left=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=12);columns.pack_start(left,False,False,0)
-        self.cal=Gtk.Calendar();self.cal.set_show_week_numbers(True);self.cal.connect('day-selected',self.selected_day);self.cal.connect('month-changed',lambda *_:self.mark_days());left.pack_start(self.cal,False,False,0)
+        self.cal=Gtk.Calendar();self.cal.set_display_options(self.cal.get_display_options() | Gtk.CalendarDisplayOptions.SHOW_WEEK_NUMBERS);self.cal.connect('day-selected',self.selected_day);self.cal.connect('month-changed',lambda *_:self.mark_days());left.pack_start(self.cal,False,False,0)
         legend=Gtk.Label(label='Bold day = open notes\nUse arrows to switch months',xalign=0);legend.get_style_context().add_class('muted');left.pack_start(legend,False,False,0)
         self.jump=Gtk.Entry(placeholder_text='Jump to date · YYYY-MM-DD');self.jump.connect('activate',self.jump_to);left.pack_start(self.jump,False,False,0)
         right=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10);columns.pack_start(right,True,True,0)
@@ -104,13 +104,61 @@ class CalendarWindow(Gtk.ApplicationWindow):
             if event.keyval==Gdk.KEY_l:self.jump.grab_focus();return True
         return False
 
+DEFAULT_PALETTE={'bg':'#0d0e10','surface':'#17191d','fg':'#d5dbe3','muted':'#8793a3','accent':'#80b7db','edge':'#363c46'}
+CSS = 'window {background: %(bg)s;color:%(fg)s;} * {font-family: "Terminess Nerd Font Mono";font-size:14px;} .heading {font-weight:bold;font-size:16px;color:%(accent)s;} .muted {color:%(muted)s;} button,entry {background:%(surface)s;color:%(fg)s;border:1px solid %(edge)s;border-radius:0;padding:7px;} button:hover {border-color:%(accent)s;} calendar {background:%(surface)s;color:%(fg)s;padding:12px;font-size:16px;} calendar:selected {background:%(accent)s;color:%(bg)s;} .note-row {background:%(surface)s;padding:8px;} check {border:1px solid %(accent)s;} check:checked {background:%(accent)s;}'
+def load_palette(path=None):
+    path=Path(path or Path.home()/'.local/state/pixel-shell/palette.json')
+    result=DEFAULT_PALETTE.copy()
+    try:
+        data=json.loads(path.read_text())
+        if isinstance(data,dict):
+            for key in result:
+                value=data.get(key)
+                if isinstance(value,str) and re.fullmatch(r'#[0-9a-fA-F]{6}',value):result[key]=value
+    except (OSError,ValueError):pass
+    return result
+
+def check_configuration():
+    for name in ('get_date','select_month','select_day','get_display_options','set_display_options','mark_day','clear_marks'):
+        if not hasattr(Gtk.Calendar,name):raise RuntimeError('Unsupported GTK Calendar API: '+name)
+    css=Gtk.CssProvider();css.load_from_data((CSS%load_palette()).encode())
+    print('Calendar GTK3 API and CSS checks passed (display-independent)')
+
+def restart_previous_instance():
+    targets={str(Path(__file__)),str(Path(__file__).resolve()),str(Path.home()/'.config/pixel-shell/calendar_app.py')}
+    stopped=[]
+    for process in Path('/proc').iterdir():
+        if not process.name.isdigit() or int(process.name)==os.getpid():continue
+        try:
+            if process.stat().st_uid!=os.getuid():continue
+            args=(process/'cmdline').read_bytes().split(b'\0')
+            if len(args)>1 and os.fsdecode(args[1]) in targets:
+                os.kill(int(process.name),signal.SIGTERM);stopped.append(int(process.name))
+        except (OSError,ValueError):pass
+    deadline=time.monotonic()+2
+    while stopped and time.monotonic()<deadline:
+        stopped=[pid for pid in stopped if Path('/proc').joinpath(str(pid)).exists()]
+        if stopped:time.sleep(.05)
+
 def main():
-    app=Gtk.Application(application_id='org.pixelshell.Calendar',flags=Gio.ApplicationFlags.FLAGS_NONE)
+    if '--check' in sys.argv:check_configuration();return
+    if '--restart' in sys.argv:restart_previous_instance();sys.argv.remove('--restart')
+    app=Gtk.Application(application_id='org.pixelshell.Calendar',flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE)
     def activate(app):
-        if app.get_active_window():app.get_active_window().present();return
-        path=Path.home()/'.local/state/pixel-shell/palette.json';p=json.loads(path.read_text()) if path.exists() else {'bg':'#0d0e10','surface':'#17191d','fg':'#d5dbe3','muted':'#8793a3','accent':'#80b7db','edge':'#363c46'}
-        css=Gtk.CssProvider();css.load_from_data(('''window {background: %(bg)s;color:%(fg)s;} * {font-family: "Terminess Nerd Font Mono";font-size:14px;} .heading {font-weight:bold;font-size:16px;color:%(accent)s;} .muted {color:%(muted)s;} button,entry {background:%(surface)s;color:%(fg)s;border:1px solid %(edge)s;border-radius:0;padding:7px;} button:hover {border-color:%(accent)s;} calendar {background:%(surface)s;color:%(fg)s;padding:12px;font-size:16px;} calendar:selected {background:%(accent)s;color:%(bg)s;} .note-row {background:%(surface)s;padding:8px;} check {border:1px solid %(accent)s;} check:checked {background:%(accent)s;}'''%p).encode());Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        window=CalendarWindow(app);window.show_all()
-        if '--notes' in sys.argv:window.entry.grab_focus()
-    app.connect('activate',activate);app.run([sys.argv[0]])
+        try:
+            window=app.get_active_window()
+            if window is None:
+                css=Gtk.CssProvider();css.load_from_data((CSS%load_palette()).encode())
+                Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+                window=CalendarWindow(app);window.show_all()
+            window.present()
+            if getattr(app,'open_notes',False):window.entry.grab_focus()
+        except Exception:
+            logging.exception('Calendar startup failed')
+            subprocess.run(['notify-send','-a','Pixel Shell','Calendar failed','See ~/.local/state/pixel-shell/calendar.log'],check=False)
+            app.quit()
+    def command_line(app,line):
+        app.open_notes='--notes' in line.get_arguments();app.activate();return 0
+    app.connect('activate',activate);app.connect('command-line',command_line)
+    app.run(sys.argv)
 if __name__=='__main__':main()

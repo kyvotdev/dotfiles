@@ -39,7 +39,11 @@ function M.setup()
   if vim.fn.isdirectory(M.path(M.specs[1])) == 1 then
     vim.cmd.packadd('mini.nvim')
     setup('notify', { window = { config = { border = 'single' }, winblend = 0 }, lsp_progress = { duration_last = 1200 } })
-    for _, name in ipairs({ 'icons', 'pick', 'extra', 'files', 'pairs', 'surround', 'comment', 'ai', 'diff', 'git', 'statusline' }) do setup(name) end
+    for _, name in ipairs({ 'icons', 'extra', 'files', 'pairs', 'surround', 'comment', 'ai', 'diff', 'git', 'statusline' }) do setup(name) end
+    setup('pick', { source = { show = function(buf,items,query)
+      require('mini.pick').default_show(buf,items,query,{show_icons=true})
+    end } })
+    if _G.MiniIcons then MiniIcons.mock_nvim_web_devicons(); MiniIcons.tweak_lsp_kind() end
     setup('completion', { delay = { completion = 120, info = 120, signature = 70 }, window = { info = { border = 'single' }, signature = { border = 'single' } } })
     setup('starter', { header = 'PIXEL / DEVELOPMENT', footer = 'Space: commands   /   :PixelTools: language tools', items = {
       { name = 'Find project file', action = function() require('pixel.tools').find_files() end, section = 'Project' },

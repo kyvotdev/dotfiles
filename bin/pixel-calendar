@@ -1,3 +1,6 @@
 #!/bin/sh
 export LC_TIME=C.UTF-8
-exec python3 "$HOME/.config/pixel-shell/calendar_app.py" "$@"
+export GDK_BACKEND="${GDK_BACKEND:-wayland,x11}"
+calendar_state="${XDG_STATE_HOME:-$HOME/.local/state}/pixel-shell"
+mkdir -p "$calendar_state"
+exec python3 "$HOME/.config/pixel-shell/calendar_app.py" "$@" 2>>"$calendar_state/calendar.log"

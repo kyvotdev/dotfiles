@@ -15,7 +15,7 @@ def main():
         print('Configured renderer:',CONF.read_text().strip() if CONF.exists() else 'automatic')
         print('Renderer selection takes effect after restarting the niri session.')
         return
-    if action not in ('discrete','auto'):raise ValueError('Use: pixel-gpu status | discrete | auto')
+    if action not in ('discrete','integrated','auto'):raise ValueError('Use: pixel-gpu status | discrete | integrated | auto')
     if action=='discrete':
         if driver()!='nvidia':raise ValueError('Install the NVIDIA driver and reboot first; current driver: '+driver())
         subprocess.run(['nvidia-smi','-L'],check=True)
@@ -28,6 +28,16 @@ def main():
             render=Path('/dev/dri')/nodes[0].name
         if not render.exists():raise ValueError('Render device is not accessible: '+str(render))
         text='// NVIDIA T550 renderer; Intel remains available for the built-in display.\ndebug { render-drm-device '+json.dumps(str(render))+'; }\n'
+    elif action=='integrated':
+        pci='0000:00:02.0';device=Path('/sys/bus/pci/devices')/pci
+        if not (device/'vendor').exists() or (device/'vendor').read_text().strip()!='0x8086':raise ValueError('Intel integrated GPU was not found')
+        render=Path('/dev/dri/by-path')/('pci-'+pci+'-render')
+        if not render.exists():
+            nodes=sorted((device/'drm').glob('renderD*'))
+            if not nodes:raise ValueError('Intel render node is unavailable')
+            render=Path('/dev/dri')/nodes[0].name
+        if not render.exists():raise ValueError('Intel render device is not accessible in this environment')
+        text='// Intel renderer for the built-in screen; NVIDIA remains available for offload.\ndebug { render-drm-device '+json.dumps(str(render))+'; }\n'
     else:text='// Automatic GPU selection.\n'
     CONF.parent.mkdir(parents=True,exist_ok=True)
     target=CONF.resolve();old=target.read_text() if target.exists() else ''
