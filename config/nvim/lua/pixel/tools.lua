@@ -105,9 +105,7 @@ function M.file_target()
   return vim.fn.isdirectory(root) == 1 and root or vim.uv.cwd()
 end
 function M.files()
-  local ok, files = pcall(require, 'mini.files')
-  local target = M.file_target()
-  if ok then files.open(target, true) else vim.cmd('Explore ' .. vim.fn.fnameescape(target)) end
+  require('pixel.explorer').toggle()
 end
 function M.run()
   if vim.bo.modified then vim.notify('Save the file before running it', vim.log.levels.WARN); return end
@@ -153,7 +151,10 @@ function M.icons()
   if not ok then vim.notify('Install mini.nvim first with :PixelInstall',vim.log.levels.WARN);return end
   local lines={'NERD FONT / ICON CHECK','','The left column should contain symbols, not squares.','Terminal font: JetBrainsMono Nerd Font Mono + Symbols Nerd Font Mono.',''}
   for _,name in ipairs({'main.py','app.ts','main.rs','main.go','init.lua','main.cpp','README.md','package.json'}) do
-    local glyph=icons.get('file',name);table.insert(lines,glyph..'  '..name)
+    local glyph=icons.get('file',name)
+    local found,devicons=pcall(require,'nvim-web-devicons')
+    if found then glyph=devicons.get_icon(name,vim.fn.fnamemodify(name,':e'),{default=true}) or glyph end
+    table.insert(lines,glyph..'  '..name)
   end
   vim.cmd('botright new');vim.bo.buftype='nofile';vim.bo.bufhidden='wipe';vim.bo.swapfile=false
   vim.api.nvim_buf_set_lines(0,0,-1,false,lines);vim.bo.modifiable=false

@@ -4,14 +4,21 @@ import argparse,fcntl,json,os,shutil,subprocess,sys,uuid,tempfile
 from pathlib import Path
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--update',action='store_true',help='update already installed plugins with git pull --ff-only')
+parser.add_argument('--only',nargs='+',metavar='PLUGIN',help='install only selected manifest plugins')
 options=parser.parse_args()
 home=Path.home();app=os.getenv('NVIM_APPNAME','nvim')
 data=Path(os.getenv('XDG_DATA_HOME',str(home/'.local/share')))/app
 state=Path(os.getenv('XDG_STATE_HOME',str(home/'.local/state')))/app
 state.mkdir(parents=True,exist_ok=True)
 specs=json.loads((Path(__file__).resolve().parents[1]/'plugins.json').read_text())
+if options.only:
+    unknown=set(options.only)-{s['name'] for s in specs}
+    if unknown:parser.error('Unknown plugin: '+', '.join(sorted(unknown)))
+    specs=[s for s in specs if s['name'] in options.only]
 def install():
-    errors=[];revisions={}
+    errors=[]
+    try:revisions=json.loads((state/'pixel-plugin-revisions.json').read_text())
+    except (OSError,ValueError):revisions={}
     for spec in specs:
         target=data/'site/pack/pixel/start'/spec['name'];target.parent.mkdir(parents=True,exist_ok=True)
         stage=target.with_name(target.name+'.download-'+uuid.uuid4().hex)

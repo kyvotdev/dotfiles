@@ -15,6 +15,7 @@ with tempfile.TemporaryDirectory(prefix='pixel-editor-test-') as tmp:
     root=Path(tmp);(root/'pyproject.toml').touch();(root/'main.py').write_text('x = 1\n')
     run('nvim_smoke.lua',{})
     run('nvim_ide.lua',{'PIXEL_IDE_TEST_ROOT':tmp})
+    run('nvim_explorer.lua',{'PIXEL_IDE_TEST_ROOT':tmp})
     (root/'.venv/bin').mkdir(parents=True)
     (root/'.venv/bin/pyright-langserver').symlink_to(ROOT/'tests/lsp_fixture.py')
     run('nvim_lsp.lua',{'PIXEL_LSP_TEST_ROOT':tmp})

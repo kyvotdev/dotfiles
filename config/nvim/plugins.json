@@ -1,5 +1,27 @@
 [
-  {"name":"mini.nvim","url":"https://github.com/nvim-mini/mini.nvim","branch":"stable"},
-  {"name":"nvim-dap","url":"https://github.com/mfussenegger/nvim-dap","branch":"master"},
-  {"name":"nvim-treesitter","url":"https://github.com/nvim-treesitter/nvim-treesitter","branch":"main"}
+  {
+    "name": "mini.nvim",
+    "url": "https://github.com/nvim-mini/mini.nvim",
+    "branch": "stable"
+  },
+  {
+    "name": "nvim-dap",
+    "url": "https://github.com/mfussenegger/nvim-dap",
+    "branch": "master"
+  },
+  {
+    "name": "nvim-treesitter",
+    "url": "https://github.com/nvim-treesitter/nvim-treesitter",
+    "branch": "main"
+  },
+  {
+    "name": "nvim-web-devicons",
+    "url": "https://github.com/nvim-tree/nvim-web-devicons",
+    "branch": "master"
+  },
+  {
+    "name": "nvim-tree.lua",
+    "url": "https://github.com/nvim-tree/nvim-tree.lua",
+    "branch": "master"
+  }
 ]

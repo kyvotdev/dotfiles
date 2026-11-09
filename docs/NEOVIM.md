@@ -4,7 +4,7 @@
 
 ## Что исправлено
 
-- Устранён `E216: No such group or event: FileExplorer`: группа netrw создаётся до подключения mini.files.
+- mini.files заменён на nvim-tree: служебные URI стартового экрана не передаются в файловый менеджер; конфликт автокоманд netrw исключён.
 - Автодополнение теперь работает через mini.completion: LSP, snippets и запасное дополнение словами буфера. Два разных движка одновременно не запускаются.
 - Серверы и форматтеры обнаруживаются не только в PATH, но и в `.venv/bin`, `venv/bin`, `node_modules/.bin` проекта, `~/.local/bin`, `~/.cargo/bin`, `~/go/bin`.
 - При отсутствии форматтера выводится конкретная подсказка, а не ошибка о несуществующем LSP-клиенте.
@@ -33,9 +33,19 @@ bash ~/dotfiles/tools/install-dev-tools.sh all --print
 
 Плагины из [plugins.json](../config/nvim/plugins.json):
 
-- [mini.nvim](https://github.com/nvim-mini/mini.nvim), stable: стартовый экран, файловый менеджер, fuzzy pickers, автодополнение, Git, сессии, notifications, statusline, surround и подсказки клавиш.
+- [mini.nvim](https://github.com/nvim-mini/mini.nvim), stable: стартовый экран, fuzzy pickers, автодополнение, Git, сессии, notifications, statusline, surround и подсказки клавиш.
 - [nvim-dap](https://github.com/mfussenegger/nvim-dap): интерфейс отладки, breakpoints, шаги, stack, scopes и REPL.
 - [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter), main: установка синтаксических parsers для Neovim 0.12.
+
+[nvim-tree](https://github.com/nvim-tree/nvim-tree.lua) заменяет mini.files: слева дерево шириной 34 колонки с Git, диагностикой и подсветкой открытого файла. [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) — настоящий поставщик filetype-иконок; подмена его API через MiniIcons отключена. Значки папок заданы стабильными Nerd Font glyphs, цвета соответствуют общей палитре.
+
+Установить только новый explorer и значки:
+
+```bash
+python3 ~/.config/nvim/scripts/install-plugins.py --only nvim-web-devicons nvim-tree.lua
+```
+
+Либо после перечитывания конфигурации выполнить `:PixelExplorerInstall`. Затем перезапустить Neovim. Пока плагины не скачаны, Space+e открывает временный файловый picker, без возврата к mini.files. Из sandbox скачать плагины не удалось из-за DNS; конфигурация сама по себе не означает, что файлы плагина уже установлены.
 
 `:PixelInstall` ставит недостающие плагины; `:PixelUpdate` явно обновляет установленные. Редактор при каждом запуске ничего не скачивает. `:PixelParsers python rust` устанавливает только выбранные parsers; без аргументов — основной набор. Нужны tree-sitter-cli, curl, tar и компилятор C. Ошибка загрузки не удаляет рабочие плагины. В sandbox DNS недоступен, поэтому новые DAP/Treesitter-плагины здесь не удалось скачать; mini.nvim уже установлен пользователем и проверен.
 
@@ -62,14 +72,14 @@ bash ~/dotfiles/tools/install-dev-tools.sh all --print
 
 ## Интерфейс и рабочий процесс
 
-Стартовый экран позволяет открыть проект, найти файл, перейти к недавним файлам и проверить инструменты. Fuzzy pickers показывают preview. Файловый менеджер создаёт/переименовывает/перемещает файлы с подтверждением синхронизации. Git показывает изменения, ветки, историю и hunks. Сессии сохраняются только по явной команде и не исполняются автоматически при входе в произвольный репозиторий.
+Стартовый экран позволяет открыть проект, найти файл, перейти к недавним файлам и проверить инструменты. Fuzzy pickers показывают preview. Дерево nvim-tree создаёт, переименовывает и перемещает файлы; удаление требует подтверждения. Git показывает изменения, ветки, историю и hunks. Сессии сохраняются только по явной команде и не исполняются автоматически при входе в произвольный репозиторий.
 
 Leader = **Space**. Win-комбинации остаются у niri.
 
 | Клавиши | Действие |
 | --- | --- |
 | Space+w / Space+q | Сохранить / закрыть с проверкой несохранённого |
-| Space+e / Space+fp | Файловый менеджер / открыть проект |
+| Space+e / Space+E / Space+fp | Переключить дерево / показать текущий файл / открыть проект |
 | Space+ff / Space+fg | Найти файл / искать текст проекта |
 | Space+fr / Space+fb / Space+fh | Недавние файлы / буферы / справка |
 | Space+/ | Поиск строк текущего буфера |
@@ -120,7 +130,7 @@ Leader = **Space**. Win-комбинации остаются у niri.
 python3 ~/dotfiles/tests/run_nvim.py
 ```
 
-Проверки запускаются после VimEnter и возвращают ненулевой код при ошибке. Проверены: отсутствие startup errors, реальный mini.files, настоящий поиск mini.pick, бинды/форматирование с защитой от гонки и LSP-сеанс с локальным тестовым сервером (project-local discovery, initialize, diagnostics, completion, keymaps). Тестовый сервер не используется редактором для реальных проектов.
+Проверки запускаются после VimEnter и возвращают ненулевой код при ошибке. Проверены: отсутствие startup errors, реальный поиск mini.pick, безопасный адаптер nvim-tree, бинды/форматирование с защитой от гонки и LSP-сеанс с локальным тестовым сервером (project-local discovery, initialize, diagnostics, completion, keymaps). Тестовый сервер не используется редактором для реальных проектов.
 
 Реальные серверы, SDK, parsers и DAP-адаптеры всё равно нужно установить; их готовность показывает `:PixelTools`. Новый конфиг не выдаёт отсутствующие зависимости за рабочие. Внешние процессы и GUI отладки требуют проверки в пользовательской сессии. Журналы: `:messages`, Space+un, `:checkhealth vim.lsp` и путь LSP log из PixelTools.
 
@@ -128,4 +138,18 @@ python3 ~/dotfiles/tests/run_nvim.py
 
 Исправлен E5108 при открытии файлового менеджера со стартового экрана: URI `ministarter:/...`, terminal/help/quickfix и другие служебные буферы не передаются в mini.files как файловые пути. Для нового несохранённого файла открывается существующий родительский каталог, для стартового экрана — текущий проект. Регрессия проверена на `ministarter:/1/welcome`.
 
-В mini.pick явно включён show_icons, в mini.files используется MiniIcons. `:PixelIcons` показывает проверочную таблицу. Kitty сопоставляет Symbols Nerd Font Mono всем private-use диапазонам Nerd Fonts, включая старые и новые значки. После изменения font mapping перезапусти терминал (или перечитай конфиг Kitty через Ctrl+Shift+F5) и Neovim. MiniIcons работают со style=glyph, односимвольной шириной; квадраты в PixelIcons указывают на проблему шрифта терминала, а не отсутствие пакета mini.nvim.
+В mini.pick явно включён show_icons. В nvim-tree включены file/folder/git/diagnostic icons и реальный nvim-web-devicons, MiniIcons остаётся для pickers и statusline. `:PixelIcons` показывает проверочную таблицу. Kitty сопоставляет Symbols Nerd Font Mono всем private-use диапазонам Nerd Fonts, включая старые и новые значки. После изменения font mapping перезапусти терминал (или перечитай конфиг Kitty через Ctrl+Shift+F5) и Neovim. MiniIcons работают со style=glyph, односимвольной шириной; квадраты в PixelIcons указывают на проблему шрифта терминала, а не отсутствие пакета mini.nvim.
+
+### Клавиши в дереве nvim-tree
+
+| Клавиша | Действие |
+| --- | --- |
+| Enter / l | Открыть файл или папку |
+| h | Закрыть папку / к родителю |
+| v / s | Открыть файл в вертикальном / горизонтальном split |
+| a / r / d | Создать / переименовать / удалить |
+| c / x / p | Копировать / вырезать / вставить |
+| H / R | Скрытые файлы / обновить дерево |
+| q / ? | Закрыть дерево / подсказка клавиш |
+
+`Space+e` работает и со стартового экрана, `Space+E` показывает текущий файл. Font mapping терминала остаётся Symbols Nerd Font Mono для всех Nerd Font диапазонов. Проверка символов — `:PixelIcons`. Само окно nvim-tree требует проверки после фактического скачивания плагина; локальные тесты проверяют его адаптер и настройки значков, не подменяя этим проверку upstream UI.

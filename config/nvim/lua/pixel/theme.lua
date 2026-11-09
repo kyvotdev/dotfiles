@@ -10,6 +10,12 @@ function M.apply()
   for _, name in ipairs({ 'Normal', 'NormalNC', 'SignColumn', 'EndOfBuffer' }) do hl(name, { fg = p.fg, bg = 'NONE' }) end
   for _, name in ipairs({ 'NormalFloat', 'Pmenu', 'MiniPickNormal', 'MiniFilesNormal' }) do hl(name, { fg = p.fg, bg = p.surface }) end
   for _, name in ipairs({ 'FloatBorder', 'WinSeparator', 'MiniPickBorder', 'MiniFilesBorder' }) do hl(name, { fg = p.edge, bg = p.surface }) end
+  for _,name in ipairs({'NvimTreeNormal','NvimTreeNormalNC','NvimTreeEndOfBuffer'}) do hl(name,{fg=p.fg,bg=p.surface}) end
+  for _,name in ipairs({'NvimTreeFolderIcon','NvimTreeFolderName','NvimTreeOpenedFolderName','NvimTreeFileIcon','DevIconDefault'}) do hl(name,{fg=p.accent}) end
+  for _,name in ipairs({'NvimTreeGitNewIcon','NvimTreeGitStagedIcon','NvimTreeGitRenamedIcon','NvimTreeSymlinkIcon'}) do hl(name,{fg=p.accent2}) end
+  hl('NvimTreeRootFolder',{fg=p.accent2,bold=true});hl('NvimTreeIndentMarker',{fg=p.edge})
+  hl('NvimTreeCursorLine',{bg=p.edge});hl('NvimTreeOpenedHL',{fg=p.accent2,bold=true})
+  for _,name in ipairs({'NvimTreeGitDirtyIcon','NvimTreeGitDeletedIcon','NvimTreeDiagnosticErrorIcon','NvimTreeDiagnosticWarnIcon'}) do hl(name,{fg=p.warn}) end
   hl('CursorLine', { bg = p.surface }); hl('CursorLineNr', { fg = p.accent, bold = true })
   hl('LineNr', { fg = p.muted }); hl('Comment', { fg = p.muted, italic = true })
   hl('Visual', { bg = p.edge }); hl('PmenuSel', { bg = p.edge, fg = p.accent, bold = true })
