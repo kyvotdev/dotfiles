@@ -1,8 +1,6 @@
 #!/bin/sh
-# Fade focus changes which do not otherwise move niri's scrolling viewport.
+# Compatibility wrapper: use native niri focus without screen capture or fades.
 case "${1:-}" in
-    focus-window-up|focus-window-down|focus-window-previous|focus-monitor-left|focus-monitor-right|focus-monitor-up|focus-monitor-down) ;;
+    focus-window-up|focus-window-down|focus-window-previous|focus-monitor-left|focus-monitor-right|focus-monitor-up|focus-monitor-down) exec niri msg action "$1" ;;
     *) printf '%s\n' 'Unsupported focus action' >&2; exit 2 ;;
 esac
-niri msg action do-screen-transition --delay-ms 40 >/dev/null || exit
-exec niri msg action "$1"

@@ -12,10 +12,10 @@ environment {
 }
 animations {
     workspace-switch { duration-ms 260; curve "ease-out-cubic"; }
-    horizontal-view-movement { spring damping-ratio=0.92 stiffness=420 epsilon=0.0001; }
+    horizontal-view-movement { spring damping-ratio=1.0 stiffness=800 epsilon=0.0001; }
     window-open { duration-ms 220; curve "ease-out-expo"; }
     window-close { duration-ms 180; curve "ease-out-quad"; }
-    window-movement { spring damping-ratio=0.92 stiffness=480 epsilon=0.0001; }
+    window-movement { spring damping-ratio=1.0 stiffness=800 epsilon=0.0001; }
     overview-open-close { spring damping-ratio=1.0 stiffness=650 epsilon=0.0001; }
     screenshot-ui-open { duration-ms 180; curve "ease-out-quad"; }
     config-notification-open-close { spring damping-ratio=1.0 stiffness=700 epsilon=0.001; }
@@ -24,8 +24,8 @@ animations {
     window-resize { spring damping-ratio=1.0 stiffness=750 epsilon=0.0001; }
 }
 binds {
-    Alt+Tab repeat=false { spawn "/home/didi/.local/bin/pixel-focus" "focus-window-previous"; }
-    Mod+Tab repeat=false { spawn "/home/didi/.local/bin/pixel-focus" "focus-window-previous"; }
+    Alt+Tab repeat=false { focus-window-previous; }
+    Mod+Tab repeat=false { focus-window-previous; }
     Mod+P hotkey-overlay-title="Displays / HDMI" { spawn "/home/didi/.local/bin/pixel-displays"; }
     Mod+Ctrl+P hotkey-overlay-title="Restore displays" { spawn "/home/didi/.local/bin/pixel-displays" "rescue"; }
     Mod+Alt+C hotkey-overlay-title="Caffeine" { spawn "/home/didi/.local/bin/pixel-caffeine" "toggle"; }

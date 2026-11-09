@@ -24,8 +24,8 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 | `Win+O` | Обзор окон |
 | `Win+Q` | Закрыть окно |
 | `Win+Left`, `Win+H`, `Win+WheelScrollLeft`, `Win+Shift+WheelScrollUp` | Фокус на колонке слева |
-| `Win+Down`, `Win+J` | Фокус на окне ниже · плавный переход |
-| `Win+Up`, `Win+K` | Фокус на окне выше · плавный переход |
+| `Win+Down`, `Win+J` | Фокус на окне ниже |
+| `Win+Up`, `Win+K` | Фокус на окне выше |
 | `Win+Right`, `Win+L`, `Win+WheelScrollRight`, `Win+Shift+WheelScrollDown` | Фокус на колонке справа |
 | `Win+Ctrl+Left`, `Win+Ctrl+H`, `Win+Ctrl+WheelScrollLeft`, `Win+Ctrl+Shift+WheelScrollUp` | Переместить колонку влево |
 | `Win+Ctrl+Down`, `Win+Ctrl+J` | Переместить окно вниз |
@@ -35,10 +35,10 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 | `Win+End` | Последняя колонка |
 | `Win+Ctrl+Home` | Перенести колонку в начало |
 | `Win+Ctrl+End` | Перенести колонку в конец |
-| `Win+Shift+Left` | focus-monitor-left · плавный переход |
-| `Win+Shift+Down`, `Win+Shift+J` | focus-monitor-down · плавный переход |
-| `Win+Shift+Up`, `Win+Shift+K` | focus-monitor-up · плавный переход |
-| `Win+Shift+Right`, `Win+Shift+L` | focus-monitor-right · плавный переход |
+| `Win+Shift+Left` | Фокус на мониторе: left |
+| `Win+Shift+Down`, `Win+Shift+J` | Фокус на мониторе: down |
+| `Win+Shift+Up`, `Win+Shift+K` | Фокус на мониторе: up |
+| `Win+Shift+Right`, `Win+Shift+L` | Фокус на мониторе: right |
 | `Win+Shift+H` | Хотспот |
 | `Win+Shift+Ctrl+Left`, `Win+Shift+Ctrl+H` | Перенести колонку на монитор: left |
 | `Win+Shift+Ctrl+Down`, `Win+Shift+Ctrl+J` | Перенести колонку на монитор: down |
@@ -95,7 +95,7 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 | `Win+Escape` | Разрешить / запретить перехват горячих клавиш приложением |
 | `Win+Shift+E`, `Ctrl+Alt+Delete` | Выйти из niri с подтверждением |
 | `Win+Shift+P` | Погасить мониторы; любой ввод включает их снова |
-| `Alt+Tab`, `Win+Tab` | Предыдущее окно с плавным переходом |
+| `Alt+Tab`, `Win+Tab` | focus-window-previous |
 | `Win+P` | Мониторы / HDMI / дублирование |
 | `Win+Ctrl+P` | Включить экраны и восстановить автоматическое расположение |
 | `Win+Alt+C` | Caffeine |
