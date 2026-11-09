@@ -2,6 +2,8 @@ local M = { ready = false }
 function M.setup()
   local ok, tree = pcall(require, 'nvim-tree')
   if not ok then return end
+  -- nvim-tree clears netrw's group even when netrw never loaded.
+  vim.api.nvim_create_augroup('FileExplorer', { clear = false })
   vim.g.loaded_netrw = 1
   vim.g.loaded_netrwPlugin = 1
   tree.setup({

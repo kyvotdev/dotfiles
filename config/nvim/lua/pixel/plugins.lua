@@ -45,7 +45,8 @@ function M.setup()
   if vim.fn.isdirectory(M.path(M.specs[1])) == 1 then
     vim.cmd.packadd('mini.nvim')
     setup('notify', { window = { config = { border = 'single' }, winblend = 0 }, lsp_progress = { duration_last = 1200 } })
-    for _, name in ipairs({ 'icons', 'extra', 'pairs', 'surround', 'comment', 'ai', 'diff', 'git', 'statusline' }) do setup(name) end
+    setup('icons', { style = 'glyph' })
+    for _, name in ipairs({ 'extra', 'pairs', 'surround', 'comment', 'ai', 'diff', 'git', 'statusline' }) do setup(name) end
     setup('pick', { source = { show = function(buf,items,query)
       require('mini.pick').default_show(buf,items,query,{show_icons=true})
     end } })

@@ -34,6 +34,13 @@ function M.apply()
   for _, name in ipairs({ 'MiniStatuslineModeNormal', 'MiniStatuslineModeInsert', 'MiniStatuslineModeVisual' }) do hl(name, { bg = p.accent, fg = p.bg, bold = true }) end
   hl('MiniStatuslineDevinfo', { bg = p.edge, fg = p.fg }); hl('MiniStatuslineFilename', { bg = p.surface, fg = p.fg })
   hl('MiniPickMatchCurrent', { bg = p.edge }); hl('MiniPickMatchRanges', { fg = p.accent, bold = true })
+  -- Both icon providers use the wallpaper palette, including file-specific groups.
+  local icons_ok, devicons = pcall(require, 'nvim-web-devicons')
+  if icons_ok then
+    for _, icon in pairs(devicons.get_icons()) do
+      if icon.name then hl('DevIcon' .. icon.name, { fg = p.accent2 }) end
+    end
+  end
   -- Keep icon colors in the same cold palette.
   for _, name in ipairs({ 'MiniIconsAzure', 'MiniIconsBlue', 'MiniIconsCyan', 'MiniIconsGreen', 'MiniIconsOrange', 'MiniIconsPurple', 'MiniIconsRed', 'MiniIconsYellow' }) do hl(name, { fg = p.accent2 }) end
 end
