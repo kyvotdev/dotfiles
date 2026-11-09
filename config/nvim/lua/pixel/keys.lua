@@ -27,7 +27,7 @@ n(']d', function() vim.diagnostic.jump({ count = 1, float = true }) end, 'Next d
 n('[q', '<cmd>cprevious<cr>', 'Previous search result'); n(']q', '<cmd>cnext<cr>', 'Next search result')
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal input mode' })
 map('v', '<', '<gv'); map('v', '>', '>gv')
-map('i', '<C-Space>', function() vim.lsp.completion.get() end, { desc = 'Complete' })
+map('i', '<C-Space>', function() if _G.MiniCompletion then MiniCompletion.complete_twostage() else vim.lsp.completion.get() end end, { desc = 'Complete' })
 map('i', '<CR>', function() return vim.fn.pumvisible() == 1 and '<C-y>' or '<CR>' end, { expr = true, desc = 'Accept completion / newline' })
 map('i', '<Tab>', function()
   if vim.fn.pumvisible() == 1 then return '<C-n>' end

@@ -21,18 +21,26 @@ M.servers = {
   docker = { cmd = { 'docker-langserver', '--stdio' }, filetypes = { 'dockerfile' }, root_markers = { 'Dockerfile', '.git' } },
   sql = { cmd = { 'sqls' }, filetypes = { 'sql' }, root_markers = { '.sqls.yml', '.git' } },
 }
-function M.enable()
-  for name, spec in pairs(M.servers) do
-    if vim.fn.executable(spec.cmd[1]) == 1 then
-      spec = vim.deepcopy(spec)
+function M.enable(buf)
+  buf = buf or vim.api.nvim_get_current_buf()
+  if not vim.api.nvim_buf_is_valid(buf) then return end
+  local filename = vim.api.nvim_buf_get_name(buf)
+  local root = filename ~= '' and (vim.fs.root(filename, { 'pyproject.toml', 'package.json', 'Cargo.toml', 'go.mod', '.git' }) or vim.fs.dirname(filename)) or vim.uv.cwd()
+  local resolver = require('pixel.executables').resolve
+  for name, template in pairs(M.servers) do
+    if resolver(template.cmd[1], root) then
+      local spec = vim.deepcopy(template)
       spec.capabilities = vim.lsp.protocol.make_client_capabilities()
       spec.capabilities.textDocument.completion.completionItem.snippetSupport = true
-      if name == 'java' then
-        spec.cmd = function(dispatchers, config)
-          local workspace = vim.fn.stdpath('cache') .. '/jdtls/' .. vim.fn.sha256(config.root_dir or vim.uv.cwd())
-          vim.fn.mkdir(workspace, 'p')
-          return vim.lsp.rpc.start({ 'jdtls', '-data', workspace }, dispatchers, { cwd = config.root_dir })
+      local original = vim.deepcopy(spec.cmd)
+      spec.cmd = function(dispatchers, config)
+        local argv = vim.deepcopy(original)
+        argv[1] = resolver(argv[1], config.root_dir or root) or argv[1]
+        if name == 'java' then
+          local workspace = vim.fn.stdpath('cache') .. '/jdtls/' .. vim.fn.sha256(config.root_dir or root)
+          vim.fn.mkdir(workspace, 'p'); vim.list_extend(argv, { '-data', workspace })
         end
+        return vim.lsp.rpc.start(argv, dispatchers, { cwd = config.root_dir })
       end
       vim.lsp.config('pixel_' .. name, spec)
       vim.lsp.enable('pixel_' .. name)
@@ -45,7 +53,7 @@ function M.setup()
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
     if not client then return end
     if client.name == 'pixel_ruff' then client.server_capabilities.hoverProvider = false end
-    if client:supports_method('textDocument/completion') then vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true }) end
+    if not _G.MiniCompletion and client:supports_method('textDocument/completion') then vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true }) end
     local function map(key, action, desc) vim.keymap.set('n', key, action, { buffer = ev.buf, desc = desc }) end
     map('gd', vim.lsp.buf.definition, 'Definition'); map('gD', vim.lsp.buf.declaration, 'Declaration')
     map('gr', vim.lsp.buf.references, 'References'); map('gi', vim.lsp.buf.implementation, 'Implementation')
@@ -54,7 +62,8 @@ function M.setup()
     map('<leader>ct', vim.lsp.buf.type_definition, 'Type definition')
     vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, { buffer = ev.buf, desc = 'Signature help' })
   end })
-  vim.api.nvim_create_user_command('PixelLspReload', M.enable, {})
+  vim.api.nvim_create_user_command('PixelLspReload', function() M.enable() end, {})
+  vim.api.nvim_create_autocmd('FileType', { group = 'PixelLsp', callback = function(ev) vim.schedule(function() M.enable(ev.buf) end) end })
   M.enable()
 end
 return M

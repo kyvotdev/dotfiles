@@ -156,9 +156,9 @@ Fish: сокращения `ll`, `wifi`, `bt`, `hotspot`, `theme`; zoxide под
 
 ## Переключение окон и Neovim
 
-Горизонтальный фокус niri плавно центрирует выбранную колонку (`center-focused-column always`). Для Win+Up/Down, Win+J/K и переходов между мониторами применяется короткий crossfade через `pixel-focus`; Alt+Tab и Win+Tab возвращают предыдущее окно с тем же эффектом. Это переход по клавишам; сам по себе статичный фокус в niri не имеет отдельной анимации перемещения окна. Длительность перемещения сцены задаётся spring-анимацией, рабочие столы меняются за 260 мс.
+Переключение фокуса выполняется напрямую средствами niri. Центрирование — только при выходе колонки за видимую область; применяются штатные spring-анимации с damping-ratio=1.0. Принудительные снимки экрана, crossfade на смене фокуса и постоянное центрирование отключены. Alt+Tab и Win+Tab возвращают предыдущее окно.
 
-Добавлена готовая конфигурация **Neovim**, подключённая через install.py: [языки, установка инструментов и все клавиши](docs/NEOVIM.md). База запускается без скачивания плагинов; `:PixelInstall` добавляет mini.nvim, `:PixelTools` показывает отсутствующие серверы и форматтеры. Широкая языковая поддержка использует встроенный LSP; отдельные серверы/SDK устанавливаются под выбранные проекты. Внешние загрузки из среды редактора недоступны.
+Добавлена готовая конфигурация **Neovim**, подключённая через install.py: [языки, установка инструментов и все клавиши](docs/NEOVIM.md). База запускается без скачивания плагинов; `:PixelInstall` добавляет недостающие mini.nvim, nvim-dap и nvim-treesitter, `:PixelTools` показывает отсутствующие серверы и форматтеры. Установщик инструментов: `bash ~/dotfiles/tools/install-dev-tools.sh all` (есть меньшие профили). Широкая языковая поддержка использует встроенный LSP; отдельные серверы/SDK устанавливаются под выбранные проекты. Внешние загрузки из среды редактора недоступны.
 
 ## NVIDIA T550
 
@@ -220,8 +220,8 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 | `Win+O` | Обзор окон |
 | `Win+Q` | Закрыть окно |
 | `Win+Left`, `Win+H`, `Win+WheelScrollLeft`, `Win+Shift+WheelScrollUp` | Фокус на колонке слева |
-| `Win+Down`, `Win+J` | Фокус на окне ниже · плавный переход |
-| `Win+Up`, `Win+K` | Фокус на окне выше · плавный переход |
+| `Win+Down`, `Win+J` | Фокус на окне ниже |
+| `Win+Up`, `Win+K` | Фокус на окне выше |
 | `Win+Right`, `Win+L`, `Win+WheelScrollRight`, `Win+Shift+WheelScrollDown` | Фокус на колонке справа |
 | `Win+Ctrl+Left`, `Win+Ctrl+H`, `Win+Ctrl+WheelScrollLeft`, `Win+Ctrl+Shift+WheelScrollUp` | Переместить колонку влево |
 | `Win+Ctrl+Down`, `Win+Ctrl+J` | Переместить окно вниз |
@@ -231,10 +231,10 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 | `Win+End` | Последняя колонка |
 | `Win+Ctrl+Home` | Перенести колонку в начало |
 | `Win+Ctrl+End` | Перенести колонку в конец |
-| `Win+Shift+Left` | focus-monitor-left · плавный переход |
-| `Win+Shift+Down`, `Win+Shift+J` | focus-monitor-down · плавный переход |
-| `Win+Shift+Up`, `Win+Shift+K` | focus-monitor-up · плавный переход |
-| `Win+Shift+Right`, `Win+Shift+L` | focus-monitor-right · плавный переход |
+| `Win+Shift+Left` | Фокус на мониторе: left |
+| `Win+Shift+Down`, `Win+Shift+J` | Фокус на мониторе: down |
+| `Win+Shift+Up`, `Win+Shift+K` | Фокус на мониторе: up |
+| `Win+Shift+Right`, `Win+Shift+L` | Фокус на мониторе: right |
 | `Win+Shift+H` | Хотспот |
 | `Win+Shift+Ctrl+Left`, `Win+Shift+Ctrl+H` | Перенести колонку на монитор: left |
 | `Win+Shift+Ctrl+Down`, `Win+Shift+Ctrl+J` | Перенести колонку на монитор: down |
@@ -291,7 +291,7 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 | `Win+Escape` | Разрешить / запретить перехват горячих клавиш приложением |
 | `Win+Shift+E`, `Ctrl+Alt+Delete` | Выйти из niri с подтверждением |
 | `Win+Shift+P` | Погасить мониторы; любой ввод включает их снова |
-| `Alt+Tab`, `Win+Tab` | Предыдущее окно с плавным переходом |
+| `Alt+Tab`, `Win+Tab` | focus-window-previous |
 | `Win+P` | Мониторы / HDMI / дублирование |
 | `Win+Ctrl+P` | Включить экраны и восстановить автоматическое расположение |
 | `Win+Alt+C` | Caffeine |
@@ -311,3 +311,5 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 <!-- HOTKEYS:END -->
 
 Проверка Qt: offscreen-приложения Qt 5.15.19 и Qt 6.12.0 подтвердили загрузку qtct, текущую палитру и живое изменение Highlight. Минимальные C++-проверки находятся в tests/qt_palette_probe.cpp и tests/qt_palette_live.cpp (для сборки нужны g++, pkg-config и Qt Widgets).
+
+Обновление Neovim IDE: исправлена ошибка FileExplorer, подключены mini.completion, стартовый экран, sessions, Git pickers, отладочные профили, установка parsers и project-local tools. Полная инструкция и клавиши — [docs/NEOVIM.md](docs/NEOVIM.md). Проверка после VimEnter: `python3 tests/run_nvim.py`.

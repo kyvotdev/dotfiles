@@ -1,109 +1,125 @@
-# Neovim / Pixel Development
+# Neovim / Pixel IDE
 
-Конфигурация для Neovim 0.11+ (проверена на установленном 0.12.6). Код — `config/nvim/`, подключён ссылкой в `~/.config/nvim`. Настройки рассчитаны на разработку в разных проектах без автоматического запуска проектных скриптов.
+Конфигурация для Neovim 0.12+; проверена на 0.12.6 и установленном mini.nvim 0.18. Код находится в `config/nvim`, данные плагинов и сессий — в стандартных data/state-каталогах Neovim. Цвета автоматически следуют за обоями.
 
-## Быстрый старт
+## Что исправлено
 
-```bash
-sudo pacman -S --needed neovim git ripgrep fd
-nvim
-```
+- Устранён `E216: No such group or event: FileExplorer`: группа netrw создаётся до подключения mini.files.
+- Автодополнение теперь работает через mini.completion: LSP, snippets и запасное дополнение словами буфера. Два разных движка одновременно не запускаются.
+- Серверы и форматтеры обнаруживаются не только в PATH, но и в `.venv/bin`, `venv/bin`, `node_modules/.bin` проекта, `~/.local/bin`, `~/.cargo/bin`, `~/go/bin`.
+- При отсутствии форматтера выводится конкретная подсказка, а не ошибка о несуществующем LSP-клиенте.
+- Установщик плагинов работает в фоне, не скачивает заново уже установленный mini.nvim, блокирует параллельные установки и сохраняет revisions.
+- Обязательное отсутствие языковых серверов видно в `:PixelTools`. Необязательные Python/Node/Ruby/Perl remote providers отключены: Lua-плагины, LSP и debugpy не требуют pynvim или node provider.
 
-В Neovim:
+## Установка компонентов
 
-```vim
-:PixelTools
-:PixelInstall
-```
-
-`PixelTools` показывает, какие серверы и форматтеры установлены. `PixelInstall` скачивает **один** пакет [mini.nvim](https://github.com/nvim-mini/mini.nvim), ветка stable: поиск файлов / текста, файловый менеджер, иконки, Git, statusline, пары, surround, comment и подсказки клавиш. После установки перезапусти редактор; обновление — `:PixelUpdate`. Плагин хранится в `~/.local/share/nvim/site/pack/pixel/start/mini.nvim`, не в dotfiles. Загрузка при первом старте не запускается автоматически.
-
-База работает без плагинов: LSP, автодополнение, диагностика, форматирование, терминал, задачи, поиск через rg, netrw и палитра от обоев. В среде редактора DNS недоступен, поэтому mini.nvim отсюда скачать не удалось. Команда PixelInstall выполнит загрузку из твоей сессии.
-
-## Языки и инструменты
-
-Используется современный встроенный API `vim.lsp.config` / `vim.lsp.enable`, без старого `require('lspconfig').setup`. Отсутствующие серверы не запускаются и не скачиваются молча. Установи нужные пакеты и выполни `:PixelLspReload` или перезапусти Neovim.
-
-Основной набор из официальных репозиториев Arch (можно выбрать только нужное):
+В редакторе уже есть интерфейс mini.nvim, но **LSP-серверы и SDK устанавливаются отдельно**. Подготовлен один установщик Arch:
 
 ```bash
-sudo pacman -S --needed lua-language-server pyright typescript-language-server \
-  rust-analyzer gopls clang bash-language-server yaml-language-server \
-  vscode-json-languageserver vscode-html-languageserver vscode-css-languageserver \
-  marksman taplo-cli ruff stylua prettier shfmt
+bash ~/dotfiles/tools/install-dev-tools.sh all
 ```
 
-| Язык | LSP | Форматирование |
+Он выполняет `pacman -Syu --needed`, затем устанавливает недостающие плагины. Установка требует sudo в обычном терминале; из sandbox редактора она не выполнялась. Можно выбрать меньший профиль:
+
+```bash
+bash ~/dotfiles/tools/install-dev-tools.sh core
+bash ~/dotfiles/tools/install-dev-tools.sh python
+bash ~/dotfiles/tools/install-dev-tools.sh web
+bash ~/dotfiles/tools/install-dev-tools.sh systems
+bash ~/dotfiles/tools/install-dev-tools.sh all --print
+```
+
+После установки перезапусти Neovim и выполни `:PixelParsers`. Затем открой проект через `nvim /path/to/project` или Space+fp. `:PixelTools` показывает готовность компонентов, активные LSP и путь к журналу.
+
+Плагины из [plugins.json](../config/nvim/plugins.json):
+
+- [mini.nvim](https://github.com/nvim-mini/mini.nvim), stable: стартовый экран, файловый менеджер, fuzzy pickers, автодополнение, Git, сессии, notifications, statusline, surround и подсказки клавиш.
+- [nvim-dap](https://github.com/mfussenegger/nvim-dap): интерфейс отладки, breakpoints, шаги, stack, scopes и REPL.
+- [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter), main: установка синтаксических parsers для Neovim 0.12.
+
+`:PixelInstall` ставит недостающие плагины; `:PixelUpdate` явно обновляет установленные. Редактор при каждом запуске ничего не скачивает. `:PixelParsers python rust` устанавливает только выбранные parsers; без аргументов — основной набор. Нужны tree-sitter-cli, curl, tar и компилятор C. Ошибка загрузки не удаляет рабочие плагины. В sandbox DNS недоступен, поэтому новые DAP/Treesitter-плагины здесь не удалось скачать; mini.nvim уже установлен пользователем и проверен.
+
+## Языки
+
+| Стек | Серверы / SDK в профиле | Форматтер |
 | --- | --- | --- |
-| Lua / Neovim Lua | lua-language-server | stylua |
-| Python | pyright + ruff | ruff format |
-| JavaScript, TypeScript, JSX, TSX | typescript-language-server | prettier |
-| Rust | rust-analyzer | LSP/rustfmt |
-| Go | gopls | gofmt |
-| C/C++, Objective-C, CUDA | clangd | clang-format |
+| Python | Python, Pyright, Ruff, pytest, debugpy | Ruff |
+| JS/TS, JSX/TSX | Node, npm, TypeScript, typescript-language-server | Prettier |
+| C/C++/Objective-C/CUDA | clangd / Clang, GDB | clang-format |
+| Rust | Rust toolchain, rust-analyzer | rustfmt через LSP |
+| Go | Go, gopls, Delve | gofmt |
+| Lua / Neovim | lua-language-server | StyLua |
+| HTML / CSS / SCSS / Less | VSCode language servers | Prettier |
+| JSON/JSONC / YAML | VSCode JSON / yaml-language-server | Prettier |
+| Markdown/MDX | Marksman | Prettier |
+| TOML | Taplo | LSP |
 | Bash/sh | bash-language-server | shfmt |
-| JSON/JSONC | vscode-json-languageserver | prettier |
-| YAML | yaml-language-server | prettier |
-| HTML | vscode-html-languageserver | prettier |
-| CSS/SCSS/Less | vscode-css-languageserver | prettier |
-| TOML | taplo | LSP |
-| Markdown/MDX | marksman | prettier |
+| Dockerfile / Ruby | docker-langserver / ruby-lsp | LSP, если доступен |
 
-Дополнительно подготовлены команды для PHP (`intelephense --stdio`), Ruby (`ruby-lsp`), C# (`csharp-ls`), Java (`jdtls`), Dockerfile (`docker-langserver --stdio`) и SQL (`sqls`). Они включаются только при наличии соответствующего executable в PATH. Для Ruby и Docker есть пакеты `ruby-lsp` и `dockerfile-language-server`; остальные установи способом своего стека. Для Java создаётся отдельный cache workspace по корню проекта. Для C# корень ищется по Directory.Build.props, global.json или .git.
+Также есть конфигурации PHP/Intelephense, Java/jdtls, C#/csharp-ls, SQL/sqls. Они включаются при наличии executables; эти серверы и их SDK не включены в основной профиль. Java получает отдельный cache workspace для каждого проекта.
 
-Нужны сами компиляторы/runtime: например Node.js/TypeScript для web, Go для gopls, Rust toolchain/rustfmt/clippy для Rust, Python/venv для Python и JDK для Java. LSP не заменяет SDK. Для clangd экспортируй compile_commands.json (например CMake с `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`), Python-проекту настрой .venv/pyrightconfig, TypeScript — tsconfig. Для нестандартных монорепозиториев поправь root_markers в `lua/pixel/lsp.lua`.
+Для C/C++ экспортируй compile_commands.json, например `cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON`. Python-проекту настрой `.venv` / pyrightconfig.json; TypeScript — tsconfig.json. Для нестандартного монорепозитория можно уточнить root_markers в `lua/pixel/lsp.lua`. После установки сервера в уже открытом редакторе: `:PixelLspReload`.
 
-Автодополнение использует встроенный LSP: срабатывает на trigger characters сервера, Ctrl+Space вызывает его вручную. LSP snippets поддержаны встроенным vim.snippet. Tab/Shift+Tab выбирают кандидатов либо поля snippet.
+## Интерфейс и рабочий процесс
 
-## Клавиши
+Стартовый экран позволяет открыть проект, найти файл, перейти к недавним файлам и проверить инструменты. Fuzzy pickers показывают preview. Файловый менеджер создаёт/переименовывает/перемещает файлы с подтверждением синхронизации. Git показывает изменения, ветки, историю и hunks. Сессии сохраняются только по явной команде и не исполняются автоматически при входе в произвольный репозиторий.
 
-Leader = **Space**. Эти сочетания работают внутри Neovim; Win-комбинации остаются у niri.
+Leader = **Space**. Win-комбинации остаются у niri.
 
 | Клавиши | Действие |
 | --- | --- |
 | Space+w / Space+q | Сохранить / закрыть с проверкой несохранённого |
-| Space+e | Файловый менеджер |
-| Space+ff / Space+fg | Найти файл / искать текст в проекте |
-| Space+fb / Space+fh | Буферы / справка |
+| Space+e / Space+fp | Файловый менеджер / открыть проект |
+| Space+ff / Space+fg | Найти файл / искать текст проекта |
+| Space+fr / Space+fb / Space+fh | Недавние файлы / буферы / справка |
+| Space+/ | Поиск строк текущего буфера |
 | Shift+H / Shift+L | Предыдущий / следующий буфер |
-| Space+bd | Закрыть буфер с проверкой несохранённого |
+| Space+bd | Закрыть буфер |
 | Ctrl+H/J/K/L | Перейти между split-окнами |
 | Space+sv / Space+sh | Вертикальный / горизонтальный split |
-| Space+t | Терминал в корне проекта |
-| Esc Esc в терминале | Выйти из режима терминального ввода |
-| Space+rr | Запустить сохранённый Python/Lua/JS/Bash-файл |
-| Space+rt | Выбрать задачу Cargo/Go/npm/Python-проекта |
+| Space+t | Терминал проекта; Esc Esc — выйти из режима ввода |
+| Space+rr / Space+rt | Запустить файл / выбрать задачу проекта |
 | gd / gD / gr / gi | Определение / объявление / ссылки / реализации |
 | K / Ctrl+K в insert | Документация / сигнатура |
-| Space+cr / Space+ca | Переименовать символ / code actions |
-| Space+cs / Space+ct | Символы документа / определение типа |
-| Space+cf | Форматировать текущий буфер |
-| Space+uf | Включить / выключить форматирование при сохранении для буфера |
-| Space+ud / Space+cd | Переключить диагностику / показать детали строки |
-| [d / ]d | Предыдущая / следующая диагностика |
-| [q / ]q | Предыдущий / следующий результат поиска |
-| Space+cl | Статус серверов и форматтеров |
-| Space+ut | Перечитать палитру обоев |
+| Space+cr / Space+ca | Переименование символа / code actions |
+| Space+cs / Space+ct / Space+co | Символы / определение типа / fuzzy outline |
+| Space+cf | Форматировать буфер |
+| Space+uf | Включить форматирование при сохранении для буфера |
+| Space+xx / Space+cd | Диагностика проекта / детали строки |
+| Space+ud | Включить / выключить диагностику |
+| [d / ]d, [q / ]q | Диагностики / quickfix-результаты |
+| Space+gb / Space+gc / Space+gh | Git branches / commits / hunks |
+| Space+go | Включить overlay изменений |
+| Space+ss / Space+sl | Сохранить / загрузить сессию проекта |
+| Space+un / Space+cl | История уведомлений / статус инструментов |
+| Space+ut | Перечитать палитру |
 | Ctrl+Space / Enter | Вызвать / принять автодополнение |
-| Tab / Shift+Tab | Кандидаты автодополнения или поля snippet |
-| Esc в normal | Убрать подсветку поиска |
+| Tab / Shift+Tab | Выбрать кандидата или поле snippet |
+| gcc / gc, sa/sd/sr | Комментарий / surround |
 
-Если mini.nvim установлен: обычные `gcc`/`gc` для комментариев, `sa`/`sd`/`sr` для surround; файловый менеджер применяет изменения файлов после подтверждения. Подробности встроены в `:help MiniFiles`, `:help MiniSurround`, `:help MiniPick`.
+Автодополнение появляется при вводе, без LSP дополняет словами из буфера. Snippets поддерживаются через vim.snippet. Форматирование при сохранении по умолчанию выключено. Ручной внешний форматтер работает асинхронно и не затирает правки, сделанные после его запуска. При сохранении / fallback на LSP используется ограниченный синхронный вызов.
 
-## Поведение и проверки
+## Отладчик
 
-- Форматирование при сохранении **выключено по умолчанию**. Space+uf включает его для текущего буфера.
-- Внешний форматтер работает асинхронно при ручном вызове и не перезаписывает более свежие правки. При сохранении и fallback на LSP используется короткий синхронный вызов.
-- npm/Cargo/Go/Python-задачи запускаются только после явного выбора. Никакой автозапуск `.nvim.lua` или проектных shell-команд при открытии.
-- Git-проекты определяются автоматически. Для одиночного файла используется текущий каталог.
-- Палитра читается из общего palette.json и обновляется при возврате фокуса и по таймеру; фон редактора сохраняет прозрачность терминала.
-- Treesitter включается только при уже доступном parser; без него остаётся штатная подсветка. Parser-пакеты не скачиваются автоматически.
-- Undo/shada/plugin data находятся в стандартных state/data-каталогах Neovim, не в Git.
+После `:PixelInstall` доступны DAP-профили Python, C/C++/Rust и Go. Python использует debugpy; код запускается в `.venv/bin/python`, если такая среда есть. C/C++/Rust — GDB с DAP (современная версия GDB с Python; профили собирай с debug symbols). Go — Delve.
 
-Проверка базовой конфигурации:
+| Клавиши | Действие |
+| --- | --- |
+| F5 | Запуск / продолжение |
+| F10 / F11 / Shift+F11 | Шаг поверх / внутрь / наружу |
+| Space+db / Space+dB | Обычная / условная точка останова |
+| Space+dq / Space+dr | Остановить / REPL |
+| Space+de / Space+ds / Space+df | Значение под курсором / scopes / stack |
+| Space+dd | Встроенный GDB termdebug — работает без скачивания DAP-плагина |
+
+Для DAP нужны отдельные адаптеры: python-debugpy, gdb, delve входят в профиль all. Конфигурации VSCode launch.json могут содержать произвольные команды, поэтому не импортируются автоматически.
+
+## Проверка и границы
 
 ```bash
-nvim --headless '+luafile ~/dotfiles/tests/nvim_smoke.lua' +qa
+python3 ~/dotfiles/tests/run_nvim.py
 ```
 
-Проверены запуск, команды и бинды, конфигурации языков, применение асинхронного форматирования и защита от перезаписи новой правки. Сервера, SDK и optional mini.nvim требуют установки и проверки на реальном проекте. `:checkhealth vim.lsp`, `:PixelTools` и `:messages` помогают диагностировать состояние.
+Проверки запускаются после VimEnter и возвращают ненулевой код при ошибке. Проверены: отсутствие startup errors, реальный mini.files, настоящий поиск mini.pick, бинды/форматирование с защитой от гонки и LSP-сеанс с локальным тестовым сервером (project-local discovery, initialize, diagnostics, completion, keymaps). Тестовый сервер не используется редактором для реальных проектов.
+
+Реальные серверы, SDK, parsers и DAP-адаптеры всё равно нужно установить; их готовность показывает `:PixelTools`. Новый конфиг не выдаёт отсутствующие зависимости за рабочие. Внешние процессы и GUI отладки требуют проверки в пользовательской сессии. Журналы: `:messages`, Space+un, `:checkhealth vim.lsp` и путь LSP log из PixelTools.

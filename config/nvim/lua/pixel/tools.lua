@@ -19,7 +19,10 @@ function M.format_command(ft, file)
   }
   for _, language in ipairs({ 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'json', 'jsonc', 'yaml', 'html', 'css', 'scss', 'less', 'markdown', 'markdown.mdx' }) do map[language] = { 'prettier', '--stdin-filepath', file } end
   local command = map[ft]
-  if command and vim.fn.executable(command[1]) == 1 then return command end
+  if command then
+    local path = require('pixel.executables').resolve(command[1], M.root())
+    if path then command[1] = path; return command end
+  end
 end
 function M.format(sync)
   local buf = vim.api.nvim_get_current_buf()
@@ -27,6 +30,8 @@ function M.format(sync)
   local file = vim.api.nvim_buf_get_name(buf)
   local argv = M.format_command(vim.bo[buf].filetype, file)
   if not argv then
+    local clients = vim.lsp.get_clients({ bufnr = buf, method = 'textDocument/formatting' })
+    if #clients == 0 then vim.notify('No formatter for ' .. vim.bo[buf].filetype .. '. Install one with install-dev-tools.sh; see :PixelTools', vim.log.levels.WARN); return end
     vim.lsp.buf.format({ bufnr = buf, async = false, timeout_ms = 1500, filter = function(c) return c.name ~= 'pixel_typescript' end })
     return
   end
@@ -116,9 +121,16 @@ end
 function M.health()
   local lines = { 'PIXEL / DEVELOPMENT TOOLS', '', 'LSP servers (enabled only when installed):' }
   local servers = require('pixel.lsp').servers
-  for _, name in ipairs(vim.fn.sort(vim.tbl_keys(servers))) do local spec = servers[name]; table.insert(lines, string.format('  %-14s %s  %s', name, vim.fn.executable(spec.cmd[1]) == 1 and 'READY' or 'MISSING', spec.cmd[1])) end
+  for _, name in ipairs(vim.fn.sort(vim.tbl_keys(servers))) do local spec = servers[name]; table.insert(lines, string.format('  %-14s %s  %s', name, require('pixel.executables').resolve(spec.cmd[1], M.root()) and 'READY' or 'MISSING', spec.cmd[1])) end
+  table.insert(lines, ''); table.insert(lines, 'Active LSP clients:')
+  for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do table.insert(lines, '  ' .. client.name .. ' · ' .. (client.root_dir or 'single file')) end
   table.insert(lines, ''); table.insert(lines, 'Formatters:')
   for _, tool in ipairs({ 'ruff', 'stylua', 'prettier', 'gofmt', 'clang-format', 'shfmt' }) do table.insert(lines, '  ' .. tool .. ': ' .. (vim.fn.executable(tool) == 1 and 'READY' or 'MISSING')) end
+  table.insert(lines, ''); table.insert(lines, 'Debug / highlighting:')
+  for _, tool in ipairs({ 'gdb', 'dlv', 'tree-sitter' }) do table.insert(lines, '  ' .. tool .. ': ' .. (vim.fn.executable(tool) == 1 and 'READY' or 'MISSING')) end
+  table.insert(lines, ''); table.insert(lines, 'Install tools: bash ~/dotfiles/tools/install-dev-tools.sh all')
+  table.insert(lines, 'Install plugins: :PixelInstall   |   Syntax parsers: :PixelParsers')
+  table.insert(lines, 'LSP log: ' .. vim.lsp.log.get_filename())
   vim.cmd('botright new'); vim.bo.buftype = 'nofile'; vim.bo.bufhidden = 'wipe'; vim.bo.swapfile = false
   vim.api.nvim_buf_set_lines(0, 0, -1, false, lines); vim.bo.modifiable = false
 end

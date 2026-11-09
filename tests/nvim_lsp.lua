@@ -1,0 +1,16 @@
+local root = assert(vim.env.PIXEL_LSP_TEST_ROOT)
+vim.cmd.edit(vim.fn.fnameescape(root .. '/main.py'))
+assert(vim.wait(4000, function()
+  local clients = vim.lsp.get_clients({ bufnr = 0, name = 'pixel_python' })
+  return #clients > 0 and clients[1].initialized
+end), 'Project-local Python language server did not attach')
+local client = vim.lsp.get_clients({ bufnr = 0, name = 'pixel_python' })[1]
+assert(client.root_dir == root, 'Incorrect project root: ' .. tostring(client.root_dir))
+assert(vim.wait(1000, function() return #vim.diagnostic.get(0) > 0 end), 'Diagnostics were not delivered')
+local result = client:request_sync('textDocument/completion', { textDocument = vim.lsp.util.make_text_document_params(), position = { line = 0, character = 1 } }, 1500, 0)
+assert(result and result.result.items[1].label == 'print', 'Completion response missing')
+assert(vim.fn.maparg('gd', 'n') ~= '', 'LSP keymaps were not attached')
+assert(vim.bo.completefunc == 'v:lua.MiniCompletion.completefunc_lsp', 'Completion engine not connected')
+assert(vim.v.errmsg == '', 'Unexpected editor error: ' .. vim.v.errmsg)
+client:stop(true)
+print('LSP integration: project-local discovery, initialization, diagnostics, completion and mappings passed')
