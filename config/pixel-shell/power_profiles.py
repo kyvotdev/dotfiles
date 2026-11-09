@@ -50,8 +50,24 @@ def apply(props, target):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', nargs='?', default='menu', choices=['menu', 'status', *LABELS])
+    parser.add_argument('action', nargs='?', default='menu', choices=['menu', 'status', 'waybar', *LABELS])
     args = parser.parse_args()
+    if args.action == 'waybar':
+        try:
+            current, _, data = snapshot(connect())
+            icons = {'power-saver': '\U000f06a5', 'balanced': '\U000f0493', 'performance': '\U000f04c5'}
+            short = {'power-saver': 'ECO', 'balanced': 'BAL', 'performance': 'PERF'}
+            label, description = LABELS.get(current, (current, ''))
+            tooltip = f'Power mode: {label}\n{description}\nClick to change mode'
+            if data.get('PerformanceDegraded'):
+                tooltip += '\nPerformance limited: ' + str(data['PerformanceDegraded'])
+            output = {'text': icons.get(current, '\U000f0425') + ' ' + short.get(current, current),
+                      'tooltip': tooltip, 'class': current}
+        except (dbus.DBusException, OSError, ValueError) as error:
+            output = {'text': '\U000f0425 ?', 'tooltip': 'Power profiles unavailable: ' + str(error),
+                      'class': 'unavailable'}
+        print(json.dumps(output))
+        return
     props = connect()
     current, available, data = snapshot(props)
     if args.action == 'status':

@@ -342,3 +342,6 @@ Uses the existing power-profiles-daemon through D-Bus; no sudo or additional
 management app is needed. Only supported profiles are offered. Performance
 limitations and application profile requests are shown after selection.
 Selection is manual and does not change the graphics renderer.
+
+Waybar shows the power profile next to the battery: `ECO`, `BAL`, or `PERF`.
+Click it to select a mode; the indicator refreshes every five seconds.

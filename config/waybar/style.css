@@ -48,3 +48,8 @@ tooltip label { color: @fg; padding: 8px; font-size: 16px; }
 #language { min-width: 44px; color: @accent; background: @surface; border-bottom: 1px solid @accent2; margin: 1px 4px; padding: 0 8px; }
 #idle_inhibitor { font-family: "Symbols Nerd Font Mono"; font-size: 11px; font-weight: normal; min-width: 16px; padding: 0 5px; color: @muted; }
 #idle_inhibitor.activated { color: @accent; background: @surface; }
+
+#custom-power-mode { padding: 0 7px; margin: 1px 2px; background: @surface; color: @accent2; }
+#custom-power-mode.performance { color: @accent; }
+#custom-power-mode.power-saver, #custom-power-mode.unavailable { color: @muted; }
+#custom-power-mode:hover { background: @edge; }

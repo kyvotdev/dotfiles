@@ -20,6 +20,7 @@
     "bluetooth",
     "pulseaudio",
     "backlight",
+    "custom/power-mode",
     "battery",
     "tray",
     "custom/power"
@@ -122,5 +123,13 @@
     "tooltip-format-activated": "Caffeine ON · keep awake",
     "tooltip-format-deactivated": "Caffeine OFF",
     "signal": 8
+  },
+  "custom/power-mode": {
+    "exec": "/home/didi/.local/bin/pixel-power-mode waybar",
+    "return-type": "json",
+    "interval": 5,
+    "format": "{}",
+    "on-click": "/home/didi/.local/bin/pixel-power-mode",
+    "exec-on-event": true
   }
 }
