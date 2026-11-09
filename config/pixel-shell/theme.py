@@ -134,16 +134,19 @@ vimcmd_symbol = "[‹]({b})"
         write(CONFIG/f'gtk-{version}.0/gtk.css',gtk+'* { border-radius: 0; }\n')
         write(CONFIG/f'gtk-{version}.0/settings.ini','[Settings]\ngtk-theme-name=adw-gtk3-dark\ngtk-icon-theme-name=Papirus-Dark\ngtk-font-name=Terminess Nerd Font Mono 13\ngtk-cursor-theme-name=Vanilla-DMZ\ngtk-cursor-theme-size=24\ngtk-application-prefer-dark-theme=1\n')
     # QPalette roles 0..20, matching qt6ct's upstream darker.conf.
-    colors=[fg,surface,edge,edge,bg,edge,fg,fg,fg,bg,bg,edge,a,bg,b,b,edge,fg,surface,fg,edge]
-    scheme='[ColorScheme]\n'
-    for group in ('active','inactive','disabled'):
-        cs=colors.copy()
-        if group=='disabled':
-            for i in (0,6,8,13): cs[i]=muted
-        scheme+=group+'_colors='+', '.join('#ff'+c[1:] for c in cs)+'\n'
+    colors=[fg,surface,edge,edge,bg,edge,fg,fg,fg,bg,bg,edge,a,bg,b,b,edge,fg,surface,fg,muted]
     for qt in ('qt5ct','qt6ct'):
+        # Qt 6.6+ adds QPalette::Accent after PlaceholderText; Qt5 ends at 20.
+        roles=colors+([a] if qt=='qt6ct' else [])
+        scheme='[ColorScheme]\n'
+        for group in ('active','inactive','disabled'):
+            cs=roles.copy()
+            if group=='disabled':
+                for i in (0,6,8,13): cs[i]=muted
+            scheme+=group+'_colors='+', '.join('#ff'+c[1:] for c in cs)+'\n'
         dest=CONFIG/qt/'colors/pixel.conf'; write(dest,scheme)
-        write(CONFIG/qt/(qt+'.conf'),f'[Appearance]\ncolor_scheme_path={dest}\ncustom_palette=true\nicon_theme=Papirus-Dark\nstyle=Fusion\nstandard_dialogs=default\n[Fonts]\nfixed="Terminess Nerd Font Mono,13,-1,5,50,0,0,0,0,0"\ngeneral="Terminess Nerd Font Mono,13,-1,5,50,0,0,0,0,0"\n[Interface]\nmenus_have_icons=true\ndialog_buttons_have_icons=1\n')
+        # Rewrite the top-level config too: qtct watches this directory for changes.
+        write(CONFIG/qt/(qt+'.conf'),f'[Appearance]\ncolor_scheme_path={dest}\ncustom_palette=true\nicon_theme=Papirus-Dark\nstyle=Fusion\nstandard_dialogs=default\n[Fonts]\nfixed="JetBrainsMono Nerd Font Mono,11,-1,5,63,0,0,0,0,0"\ngeneral="Terminess Nerd Font Mono,13,-1,5,50,0,0,0,0,0"\n[Interface]\nmenus_have_icons=true\ndialog_buttons_have_icons=1\n')
     write(CONFIG/'swaylock/config',f'color={bg[1:]}\nfont=Terminess Nerd Font Mono\nfont-size=20\nindicator-radius=65\nindicator-thickness=3\ninside-color={surface[1:]}\nring-color={edge[1:]}\nkey-hl-color={a[1:]}\nbs-hl-color={b[1:]}\ntext-color={fg[1:]}\nring-ver-color={a[1:]}\nring-wrong-color={w[1:]}\ntext-wrong-color={w[1:]}\ninside-wrong-color={surface[1:]}\nline-uses-inside\nshow-failed-attempts\n')
     behavior=(CONFIG/'pixel-shell/mako-behavior.conf').read_text()
     write(CONFIG/'mako/config',f'background-color={surface}\ntext-color={fg}\nborder-color={a}\n'+behavior)

@@ -10,7 +10,7 @@ def main():
         enabled=not enabled
         subprocess.run(['notify-send','-a','Pixel Shell','Caffeine','Enabled · automatic locking paused' if enabled else 'Disabled · automatic locking resumed'])
         return
-    print(json.dumps({'text':'\U000f00f2' if enabled else '\U000f06ca','class':'on' if enabled else 'off','tooltip':'Caffeine '+('ON · automatic locking paused' if enabled else 'OFF · automatic locking enabled')+'\nClick to toggle · locking before suspend remains enabled'}))
+    print(json.dumps({'text':'\U000f0176' if enabled else '\U000f06ca','class':'on' if enabled else 'off','tooltip':'Caffeine '+('ON · automatic locking paused' if enabled else 'OFF · automatic locking enabled')+'\nClick to toggle · locking before suspend remains enabled'}))
 if __name__=='__main__':
     try:main()
     except (RuntimeError,subprocess.SubprocessError) as e:print(str(e),file=sys.stderr);sys.exit(1)

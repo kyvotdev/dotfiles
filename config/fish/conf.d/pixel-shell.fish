@@ -1,3 +1,4 @@
+set -gx QT_QPA_PLATFORMTHEME qt6ct
 if status is-interactive
     set -g fish_greeting
     fish_add_path $HOME/.local/bin

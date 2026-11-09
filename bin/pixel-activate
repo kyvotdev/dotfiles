@@ -1,11 +1,12 @@
 #!/bin/sh
 set -eu
 export PATH="$HOME/.local/bin:$PATH"
+export QT_QPA_PLATFORMTHEME=qt6ct
 # Native Pixel Shell menus replace the legacy tray applet.
 pkill -u "$(id -u)" -x nm-applet 2>/dev/null || true
 pixel-doctor
 systemctl --user daemon-reload
-systemctl --user import-environment WAYLAND_DISPLAY DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP
+systemctl --user import-environment WAYLAND_DISPLAY DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP QT_QPA_PLATFORMTHEME
 systemctl --user restart pixel-bluetooth.service pixel-idle.service pixel-sleep-lock.service pixel-display-watch.service
 pixel-theme --restore
 if pgrep -u "$(id -u)" -x waybar >/dev/null; then

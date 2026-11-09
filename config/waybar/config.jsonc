@@ -46,10 +46,12 @@
     "on-click-right": "/home/didi/.local/bin/pixel-extras notes"
   },
   "niri/language": {
-    "format": "󰌌 {shortDescription}",
-    "format-en": "󰌌 US",
-    "format-ru": "󰌌 RU",
-    "tooltip-format": "{long} · click to switch",
+    "format": "{}",
+    "format-en": "US",
+    "format-ru": "RU",
+    "min-length": 2,
+    "align": 0.5,
+    "tooltip": false,
     "on-click": "niri msg action switch-layout next"
   },
   "network": {

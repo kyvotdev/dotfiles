@@ -46,5 +46,5 @@ tooltip label { color: @fg; padding: 8px; font-size: 16px; }
 #custom-control:hover, #custom-power:hover, #custom-notifications:hover, #clock:hover { background: @edge; }
 
 #language { min-width: 44px; color: @accent; background: @surface; border-bottom: 1px solid @accent2; margin: 1px 4px; padding: 0 8px; }
-#custom-caffeine { padding: 0 8px; color: @muted; }
+#custom-caffeine { font-family: "Symbols Nerd Font Mono"; font-size: 16px; font-weight: normal; min-width: 22px; padding: 0 7px; color: @muted; }
 #custom-caffeine.on { color: @accent; background: @surface; }
