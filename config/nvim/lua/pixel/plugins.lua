@@ -53,12 +53,12 @@ function M.setup()
     if _G.MiniIcons then MiniIcons.tweak_lsp_kind() end
     setup('completion', { delay = { completion = 120, info = 120, signature = 70 }, window = { info = { border = 'single' }, signature = { border = 'single' } } })
     setup('starter', { header = 'PIXEL / DEVELOPMENT', footer = 'Space: commands   /   :PixelTools: language tools', items = {
-      { name = 'Find project file', action = function() require('pixel.tools').find_files() end, section = 'Project' },
-      { name = 'Open project directory', action = function() require('pixel.ide').project() end, section = 'Project' },
-      { name = 'Recent files', action = function() require('mini.extra').pickers.oldfiles() end, section = 'Project' },
-      { name = 'Language tools and health', action = function() require('pixel.tools').health() end, section = 'Setup' },
-      { name = 'Install missing plugins', action = 'PixelInstall', section = 'Setup' },
-      { name = 'Quit', action = 'qa', section = 'Editor' },
+      { name = '  Find project file', action = function() require('pixel.tools').find_files() end, section = 'Project' },
+      { name = '  Open project directory', action = function() require('pixel.ide').project() end, section = 'Project' },
+      { name = '  Recent files', action = function() require('mini.extra').pickers.oldfiles() end, section = 'Project' },
+      { name = '  Language tools and health', action = function() require('pixel.tools').health() end, section = 'Setup' },
+      { name = '  Install missing plugins', action = 'PixelInstall', section = 'Setup' },
+      { name = '  Quit', action = 'qa', section = 'Editor' },
     } })
     setup('sessions', { directory = vim.fn.stdpath('state') .. '/sessions', file = '', autoread = false, autowrite = false })
     setup('clue', { triggers = { { mode = 'n', keys = '<Leader>' }, { mode = 'x', keys = '<Leader>' }, { mode = 'n', keys = 'g' }, { mode = 'n', keys = '<C-w>' } }, window = { delay = 300, config = { width = 'auto' } } })
