@@ -1,0 +1,41 @@
+local map, tools = vim.keymap.set, require('pixel.tools')
+local function n(key, action, desc) map('n', key, action, { desc = desc }) end
+n('<Esc>', '<cmd>nohlsearch<cr>', 'Clear search')
+n('<leader>w', '<cmd>write<cr>', 'Save file')
+n('<leader>q', '<cmd>confirm quit<cr>', 'Close window')
+n('<leader>e', tools.files, 'File explorer')
+n('<leader>ff', tools.find_files, 'Find project file')
+n('<leader>fg', tools.grep, 'Search project text')
+n('<leader>fb', tools.buffers, 'Find buffer')
+n('<leader>fh', function() local ok, p = pcall(require, 'mini.pick'); if ok then p.builtin.help() else vim.cmd.help() end end, 'Help')
+n('<leader>bd', function() vim.cmd('confirm bdelete') end, 'Close buffer')
+n('<S-h>', '<cmd>bprevious<cr>', 'Previous buffer')
+n('<S-l>', '<cmd>bnext<cr>', 'Next buffer')
+n('<C-h>', '<C-w>h', 'Left split'); n('<C-j>', '<C-w>j', 'Lower split')
+n('<C-k>', '<C-w>k', 'Upper split'); n('<C-l>', '<C-w>l', 'Right split')
+n('<leader>sv', '<cmd>vsplit<cr>', 'Vertical split'); n('<leader>sh', '<cmd>split<cr>', 'Horizontal split')
+n('<leader>t', function() tools.open_terminal() end, 'Project terminal')
+n('<leader>rr', tools.run, 'Run current file'); n('<leader>rt', tools.tasks, 'Project tasks')
+n('<leader>cf', function() tools.format(false) end, 'Format buffer')
+n('<leader>uf', function() vim.b.pixel_autoformat = not vim.b.pixel_autoformat; vim.notify('Format on save: ' .. tostring(vim.b.pixel_autoformat)) end, 'Toggle format on save')
+n('<leader>ud', function() vim.diagnostic.enable(not vim.diagnostic.is_enabled()) end, 'Toggle diagnostics')
+n('<leader>ut', '<cmd>PixelTheme<cr>', 'Reload wallpaper colors')
+n('<leader>cl', '<cmd>PixelTools<cr>', 'Development tool status')
+n('<leader>cd', vim.diagnostic.open_float, 'Line diagnostics')
+n('[d', function() vim.diagnostic.jump({ count = -1, float = true }) end, 'Previous diagnostic')
+n(']d', function() vim.diagnostic.jump({ count = 1, float = true }) end, 'Next diagnostic')
+n('[q', '<cmd>cprevious<cr>', 'Previous search result'); n(']q', '<cmd>cnext<cr>', 'Next search result')
+map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal input mode' })
+map('v', '<', '<gv'); map('v', '>', '>gv')
+map('i', '<C-Space>', function() vim.lsp.completion.get() end, { desc = 'Complete' })
+map('i', '<CR>', function() return vim.fn.pumvisible() == 1 and '<C-y>' or '<CR>' end, { expr = true, desc = 'Accept completion / newline' })
+map('i', '<Tab>', function()
+  if vim.fn.pumvisible() == 1 then return '<C-n>' end
+  if vim.snippet.active({ direction = 1 }) then vim.schedule(function() vim.snippet.jump(1) end); return '' end
+  return '<Tab>'
+end, { expr = true })
+map('i', '<S-Tab>', function()
+  if vim.fn.pumvisible() == 1 then return '<C-p>' end
+  if vim.snippet.active({ direction = -1 }) then vim.schedule(function() vim.snippet.jump(-1) end); return '' end
+  return '<S-Tab>'
+end, { expr = true })

@@ -148,8 +148,8 @@ vimcmd_symbol = "[‹]({b})"
         # Rewrite the top-level config too: qtct watches this directory for changes.
         write(CONFIG/qt/(qt+'.conf'),f'[Appearance]\ncolor_scheme_path={dest}\ncustom_palette=true\nicon_theme=Papirus-Dark\nstyle=Fusion\nstandard_dialogs=default\n[Fonts]\nfixed="JetBrainsMono Nerd Font Mono,11,-1,5,63,0,0,0,0,0"\ngeneral="Terminess Nerd Font Mono,13,-1,5,50,0,0,0,0,0"\n[Interface]\nmenus_have_icons=true\ndialog_buttons_have_icons=1\n')
     write(CONFIG/'swaylock/config',f'color={bg[1:]}\nfont=Terminess Nerd Font Mono\nfont-size=20\nindicator-radius=65\nindicator-thickness=3\ninside-color={surface[1:]}\nring-color={edge[1:]}\nkey-hl-color={a[1:]}\nbs-hl-color={b[1:]}\ntext-color={fg[1:]}\nring-ver-color={a[1:]}\nring-wrong-color={w[1:]}\ntext-wrong-color={w[1:]}\ninside-wrong-color={surface[1:]}\nline-uses-inside\nshow-failed-attempts\n')
-    behavior=(CONFIG/'pixel-shell/mako-behavior.conf').read_text()
-    write(CONFIG/'mako/config',f'background-color={surface}\ntext-color={fg}\nborder-color={a}\n'+behavior)
+    behavior=(CONFIG/'pixel-shell/mako-behavior.conf').read_text().replace('@warning',w)
+    write(CONFIG/'mako/config',f'background-color={surface}f5\ntext-color={fg}\nborder-color={edge}\nprogress-color=over {a}40\n'+behavior)
     if shutil.which('makoctl'): subprocess.run(['makoctl','reload'],capture_output=True)
     write(STATE/'palette.json',json.dumps(p,indent=2)+'\n')
     if path:

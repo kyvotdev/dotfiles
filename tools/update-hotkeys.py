@@ -9,6 +9,10 @@ def describe(action):
     if action=='spawn "fuzzel"':return 'Запуск приложения'
     first=action.split()[0]
     if first in DESCRIPTIONS:return DESCRIPTIONS[first]
+    if 'pixel-focus' in action:
+        target = action.split('pixel-focus',1)[1].strip(' \"')
+        if target=='focus-window-previous':return 'Предыдущее окно с плавным переходом'
+        return DESCRIPTIONS.get(target,target)+' · плавный переход'
     for marker,label in [('pixel-displays" "rescue','Включить экраны и восстановить автоматическое расположение'),('pixel-displays','Мониторы / HDMI / дублирование'),('pixel-caffeine','Caffeine'),('pixel-terminal','Терминал: Kitty / fish / Starship'),('pixel-wallpaper','Выбор обоев'),('pixel-extras" "calendar','Календарь и заметки'),('pixel-extras" "notifications','Центр уведомлений'),('pixel-extras" "timer','Таймер'),('"makoctl" "restore','Вернуть последнее уведомление'),('zen-browser','Zen Browser'),('telegram-desktop','Telegram'),('pixel-bluetooth','Bluetooth'),('pixel-control" "menu','Центр управления'),('pixel-control" "wifi','Wi-Fi'),('pixel-control" "hotspot','Хотспот'),('pixel-control" "audio','Аудиоустройства'),('pixel-control" "power','Питание'),('swaylock','Блокировка экрана'),('orca','Переключить экранный диктор')]:
         if marker in action:return label
     if 'wpctl' in action:

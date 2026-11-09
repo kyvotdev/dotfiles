@@ -15,7 +15,7 @@
   "modules-right": [
     "custom/notifications",
     "niri/language",
-    "custom/caffeine",
+    "idle_inhibitor",
     "network",
     "bluetooth",
     "pulseaudio",
@@ -112,10 +112,14 @@
     "on-click": "/home/didi/.local/bin/pixel-extras notifications",
     "on-click-right": "makoctl mode -t do-not-disturb"
   },
-  "custom/caffeine": {
-    "exec": "/home/didi/.local/bin/pixel-caffeine",
-    "return-type": "json",
-    "interval": 3,
-    "on-click": "/home/didi/.local/bin/pixel-caffeine toggle"
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "",
+      "deactivated": ""
+    },
+    "tooltip-format-activated": "Caffeine ON · keep awake",
+    "tooltip-format-deactivated": "Caffeine OFF",
+    "signal": 8
   }
 }
