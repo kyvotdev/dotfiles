@@ -356,3 +356,7 @@ Click it to select a mode; the indicator refreshes every five seconds.
 Also available under Control center → Clipboard.
 History is stored locally by cliphist in `~/.cache/cliphist`; clearing also clears
 the current clipboard. Watchers run as user services in the graphical session.
+
+If session environment variables are missing, run `~/.local/bin/pixel-clipboard-start`
+in the local Niri session. It restores the existing D-Bus/Wayland addresses and
+starts both clipboard services. Fish also restores missing user D-Bus variables.

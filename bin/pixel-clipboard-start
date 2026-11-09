@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""Start clipboard history from an existing local Wayland session."""
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+runtime = Path('/run/user') / str(os.getuid())
+if not runtime.is_dir() or runtime.stat().st_uid != os.getuid():
+    sys.exit('No local user session. Run this command in your Niri terminal.')
+if not (runtime / 'bus').is_socket():
+    sys.exit('User D-Bus socket is missing. Log out and log in to your graphical session.')
+env = dict(os.environ)
+env.setdefault('XDG_RUNTIME_DIR', str(runtime))
+env.setdefault('DBUS_SESSION_BUS_ADDRESS', 'unix:path=' + str(runtime / 'bus'))
+if not env.get('WAYLAND_DISPLAY'):
+    sockets = [p for p in runtime.glob('wayland-*') if p.is_socket()]
+    if len(sockets) != 1:
+        sys.exit('Cannot select Wayland session. Run from a terminal opened with Win+T.')
+    env['WAYLAND_DISPLAY'] = sockets[0].name
+try:
+    subprocess.run(['systemctl', '--user', 'import-environment', 'XDG_RUNTIME_DIR', 'WAYLAND_DISPLAY'], env=env, check=True)
+    subprocess.run(['systemctl', '--user', 'daemon-reload'], env=env, check=True)
+    subprocess.run(['systemctl', '--user', 'restart', 'pixel-clipboard-text.service', 'pixel-clipboard-image.service'], env=env, check=True)
+except subprocess.CalledProcessError:
+    sys.exit('Could not start clipboard history. Run this command in your local Niri session.')
+print('Clipboard history started. Press Win+V after copying something.')
