@@ -325,3 +325,20 @@ Win = Super; Alt+Shift переключает US/RU через XKB. Таблиц
 В календаре заменён несуществующий GTK3 метод set_show_week_numbers на поддерживаемый set_display_options. Некорректный palette.json больше не мешает запуску. Повторный вызов заметок корректно передаёт запрос уже открытому окну. Если остался старый зависший процесс: `pixel-calendar --restart`; перезапуск закрывает его и может потерять несохранённый текст в поле ввода. Журнал: `~/.local/state/pixel-shell/calendar.log`. Проверка без экрана: `pixel-calendar --check`; она не заменяет проверку реального окна.
 
 Файловый менеджер Neovim заменён на nvim-tree с настоящим nvim-web-devicons: Space+e переключает боковое дерево, Space+E показывает текущий файл. Для установки только этой пары: `python3 ~/.config/nvim/scripts/install-plugins.py --only nvim-web-devicons nvim-tree.lua`, затем перезапусти Neovim. Подробнее в [инструкции](docs/NEOVIM.md).
+
+### Battery power modes
+
+`pixel-power-mode` opens the themed power profile menu. Also available from
+Control center → Power mode and by clicking the battery in Waybar.
+
+```sh
+pixel-power-mode balanced
+pixel-power-mode power-saver
+pixel-power-mode performance
+pixel-power-mode status
+```
+
+Uses the existing power-profiles-daemon through D-Bus; no sudo or additional
+management app is needed. Only supported profiles are offered. Performance
+limitations and application profile requests are shown after selection.
+Selection is manual and does not change the graphics renderer.

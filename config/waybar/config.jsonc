@@ -95,7 +95,8 @@
       "warning": 25,
       "critical": 10
     },
-    "tooltip-format": "{timeTo} · {power} W"
+    "tooltip-format": "{timeTo} · {power} W",
+    "on-click": "/home/didi/.local/bin/pixel-power-mode"
   },
   "tray": {
     "icon-size": 14,
